@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { db } from "../lib/firebase";
+import { useState } from "react";
+import { db } from "@/lib/firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 const PurchaseForm = ({
@@ -15,16 +15,6 @@ const PurchaseForm = ({
   const [itemLink, setItemLink] = useState("");
   const [itemMemo, setItemMemo] = useState("");
   const [status, setStatus] = useState("");
-
-  useEffect(() => {
-    if (!userId) {
-      const redirectUri = "https://pairpay.vercel.app/api/callback";
-
-      const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINE_CLIENT_ID}&redirect_uri=${redirectUri}&state=12345&scope=profile%20openid`;
-
-      window.location.href = loginUrl;
-    }
-  }, [userId]);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
