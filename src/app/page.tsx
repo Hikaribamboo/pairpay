@@ -1,4 +1,3 @@
-// src/app/page.tsx
 import { Suspense } from "react";
 import Home from "./Home"; // "./PageInner" でも可
 
