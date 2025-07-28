@@ -40,5 +40,7 @@ export async function GET(req: NextRequest) {
 
   // 必要に応じてバックエンド保存 or クッキー化など
   
-return NextResponse.redirect(`/?uid=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`);
+  return NextResponse.redirect(
+    `https://pairpay.vercel.app/?uid=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`
+  )
 }
