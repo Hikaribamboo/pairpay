@@ -1,36 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ペア Pay
 
-## Getting Started
+**ペア Pay** は、カップルや夫婦が仲良くお金を管理するための LINE 連携型 Web アプリです。  
+「買いたいものを提案して同意を得る」「支払い履歴を残す」「貯金や入金を管理する」などの機能を通じて、日常の金銭的ストレスを軽減します。
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 💡 主な機能（MVP）
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- ✅ **購入リクエスト**：買いたいものをフォームで提案し、LINE で相手の同意を得る
+- ✅ **入金リクエスト**：共有口座への振込提案をして、同意を得る
+- ✅ **ルール案**：あらかじめ「飲食代は承認不要」などのルールを定義
+- ✅ **貯金案**：任意の金額を貯金として記録、履歴上で区別して表示
+- ✅ **LINE 通知**：提案を受けた相手に Flex Message で通知＆ボタン返信
+- ✅ **口座残高の自動計算**：入出金履歴に基づいてアプリ上で残高を算出
+- ✅ **クレカ番号の表示**：共有カード番号をコピーしやすく表示（GitHub では伏せる）
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
