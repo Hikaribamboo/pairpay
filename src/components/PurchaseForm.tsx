@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { db } from "../lib/firebase";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 const PurchaseForm = () => {
   const searchParams = useSearchParams();
@@ -28,20 +30,40 @@ const PurchaseForm = () => {
     e.preventDefault();
     setStatus("送信中...");
 
-    const res = await fetch("/api/sendMessage", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: `${userName} さんから購入リクエストが届きました！\n 【アイテム】${purchaseItem}\n【金額】${itemCost}円\n【リンク】${itemLink}\n${itemMemo}`,
-        userId,
-      }),
-    });
+    const messageText = `${userName} さんから購入リクエストが届きました！\n 【アイテム】${purchaseItem}\n【金額】${itemCost}円\n【リンク】${itemLink}\n${itemMemo}`;
 
-    if (res.ok) {
-      setStatus("送信成功！");
+    try {
+      // 1. LINEに送信
+      const res = await fetch("/api/sendMessage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: messageText,
+          userId,
+        }),
+      });
+
+      if (!res.ok) throw new Error("LINE送信失敗");
+
+      // 2. Firestoreに保存
+      await addDoc(collection(db, "purchaseRequests"), {
+        userId,
+        userName,
+        purchaseItem,
+        itemCost,
+        itemLink,
+        itemMemo,
+        createdAt: Timestamp.now(),
+      });
+
+      setStatus("送信＆保存成功！");
       setPurchaseItem("");
-    } else {
-      setStatus("送信失敗");
+      setItemCost(0);
+      setItemLink("");
+      setItemMemo("");
+    } catch (err) {
+      console.error(err);
+      setStatus("送信または保存に失敗しました");
     }
   };
 
