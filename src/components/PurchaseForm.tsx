@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { db } from "../lib/firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 
-const PurchaseForm = () => {
-  const searchParams = useSearchParams();
-  const userId = searchParams.get("uid");
-  const userName = searchParams.get("name");
-
+const PurchaseForm = ({
+  userInfo,
+}: {
+  userInfo: { userId: string; userName: string };
+}) => {
+  const { userId, userName } = userInfo;
   const [purchaseItem, setPurchaseItem] = useState("");
   const [itemCost, setItemCost] = useState(0);
   const [itemLink, setItemLink] = useState("");
@@ -30,16 +30,18 @@ const PurchaseForm = () => {
     e.preventDefault();
     setStatus("送信中...");
 
-    const messageText = `${userName} さんから購入リクエストが届きました！\n 【アイテム】${purchaseItem}\n【金額】${itemCost}円\n【リンク】${itemLink}\n${itemMemo}`;
-
     try {
       // 1. LINEに送信
       const res = await fetch("/api/sendMessage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: messageText,
           userId,
+          userName,
+          purchaseItem,
+          itemCost,
+          itemLink,
+          itemMemo,
         }),
       });
 

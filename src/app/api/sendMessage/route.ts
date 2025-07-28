@@ -1,24 +1,88 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { Client } from '@line/bot-sdk'
+import { NextRequest, NextResponse } from 'next/server';
+import { Client } from '@line/bot-sdk';
 
-const client = new Client({
+const lineClient = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-})
+});
 
 export async function POST(req: NextRequest) {
-  const { message } = await req.json()
+  const { item, cost, requestId, userName, itemLink } = await req.json();
 
-  // グループIDは実際にBotが参加しているグループIDに変更
-  const groupId = process.env.LINE_GROUP_ID! 
+  const groupId = process.env.LINE_GROUP_ID!;
 
   try {
-    await client.pushMessage(groupId, {
-      type: 'text',
-      text: message,
-    })
-    return NextResponse.json({ ok: true })
+    await lineClient.pushMessage(groupId, {
+      type: 'flex',
+      altText: '購入リクエストが届きました',
+      contents: {
+        type: 'bubble',
+        body: {
+          type: 'box',
+          layout: 'vertical',
+          spacing: 'md',
+          contents: [
+            {
+              type: 'text',
+              text: `${userName} さんから購入リクエスト`,
+              weight: 'bold',
+              size: 'md',
+            },
+            {
+              type: 'text',
+              text: `🛒 ${item} - ¥${cost}`,
+              wrap: true,
+              color: '#333333',
+              size: 'sm',
+            },
+            ...(itemLink
+            ? [
+                {
+                  type: 'button',
+                  style: 'link',
+                  height: 'sm',
+                  action: {
+                    type: 'uri',
+                    label: '🔗 商品リンク',
+                    uri: itemLink,
+                  },
+                } as any,
+              ]
+            : []),
+          ],
+        },
+        footer: {
+          type: 'box',
+          layout: 'horizontal',
+          spacing: 'md',
+          contents: [
+            {
+              type: 'button',
+              style: 'primary',
+              color: '#22C55E', // green-400
+              action: {
+                type: 'postback',
+                label: '賛成👍',
+                data: `action=agree&id=${requestId}`,
+              },
+            },
+            {
+              type: 'button',
+              style: 'primary',
+              color: '#38BDF8', // sky-400
+              action: {
+                type: 'postback',
+                label: 'スルー👋',
+                data: `action=skip&id=${requestId}`,
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error('Error sending message:', err)
-    return NextResponse.json({ error: 'Failed to send' }, { status: 500 })
+    console.error('Error sending message:', err);
+    return NextResponse.json({ error: 'Failed to send' }, { status: 500 });
   }
 }

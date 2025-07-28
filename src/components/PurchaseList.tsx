@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  setDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 type Purchase = {
   id: string;
+  userId: string;
   userName: string;
   purchaseItem: string;
   itemCost: number;
@@ -14,29 +23,40 @@ type Purchase = {
   createdAt: any; // Timestamp型
 };
 
-const PurchaseList = () => {
+const PurchaseList = ({ userId }: { userId: string }) => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPurchases = async () => {
-      const q = query(
-        collection(db, "purchaseRequests"),
-        orderBy("createdAt", "desc")
-      );
-      const querySnapshot = await getDocs(q);
+    const q = query(
+      collection(db, "purchaseRequests"),
+      orderBy("createdAt", "desc")
+    );
 
-      const data: Purchase[] = querySnapshot.docs.map((doc) => ({
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
-      })) as Purchase[];
+        ...(doc.data() as Omit<Purchase, "id">),
+      }));
+      setPurchases(list);
+    });
 
-      setPurchases(data);
-      setLoading(false);
-    };
-
-    fetchPurchases();
+    return () => unsubscribe();
   }, []);
+
+  const handleReaction = async (requestId: string, type: "agree" | "skip") => {
+    if (!userId) return;
+
+    const reactionRef = doc(
+      collection(db, "purchaseRequests", requestId, "reactions"),
+      userId
+    );
+
+    await setDoc(reactionRef, {
+      type,
+      reactedAt: Timestamp.now(),
+    });
+  };
 
   if (loading) return <p>読み込み中...</p>;
 
@@ -45,24 +65,42 @@ const PurchaseList = () => {
       <h1 className="text-xl font-bold text-center text-gray-800">
         リクエスト一覧
       </h1>
-      {purchases.map((p) => (
-        <div
-          key={p.id}
-          className="border p-4 rounded-lg shadow hover:shadow-md transition bg-white"
-        >
-          <p className="font-semibold text-gray-800">{p.purchaseItem}</p>
-          <p className="text-gray-600">金額: {p.itemCost}円</p>
-          {p.itemLink && (
-            <p className="text-blue-500 break-all">
-              <a href={p.itemLink} target="_blank" rel="noopener noreferrer">
-                リンク
-              </a>
-            </p>
-          )}
-          {p.itemMemo && <p className="text-gray-500">メモ: {p.itemMemo}</p>}
-          <p className="text-xs text-gray-400 mt-1">
-            by {p.userName} / {p.createdAt.toDate().toLocaleString()}
+      {purchases.map((item) => (
+        <div key={item.id} className="border-b py-2">
+          <p className="font-semibold">
+            {item.purchaseItem} - ¥{item.itemCost}
           </p>
+          {item.itemLink && (
+            <a
+              href={item.itemLink}
+              className="text-blue-500 text-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              リンク
+            </a>
+          )}
+          {item.itemMemo && (
+            <p className="text-sm text-gray-600">{item.itemMemo}</p>
+          )}
+
+          {/* 🔽 提案者でない場合だけ表示 */}
+          {item.userId !== userId && (
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => handleReaction(item.id, "agree")}
+                className="px-3 py-1 rounded-md text-white bg-green-400"
+              >
+                賛成👍
+              </button>
+              <button
+                onClick={() => handleReaction(item.id, "skip")}
+                className="px-3 py-1 rounded-md text-white bg-sky-400"
+              >
+                スルー👋
+              </button>
+            </div>
+          )}
         </div>
       ))}
     </div>
