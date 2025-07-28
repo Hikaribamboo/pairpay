@@ -8,7 +8,7 @@ import PurchaseList from "@/components/PurchaseList";
 export default function Home() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("uid");
-  const userName = searchParams.get("un");
+  const userName = searchParams.get("name");
 
   useEffect(() => {
     if (!userId || !userName) {
