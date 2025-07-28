@@ -39,6 +39,7 @@ const PurchaseList = ({ userId }: { userId: string }) => {
         ...(doc.data() as Omit<Purchase, "id">),
       }));
       setPurchases(list);
+      setLoading(false);
     });
 
     return () => unsubscribe();
