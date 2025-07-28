@@ -15,10 +15,6 @@ export async function POST(req: NextRequest) {
   await Promise.all(events.map(async (event: any) => {
     const source = event.source
 
-    if (source?.type === 'group') {
-      console.log('✅ グループID:', source.groupId)
-    }
-    
     if (event.type === 'message' && event.message.type === 'text') {
       const userMessage = event.message.text
       if (userMessage.includes('こんにちは')) {
