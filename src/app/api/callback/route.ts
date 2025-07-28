@@ -18,6 +18,13 @@ export async function GET(req: NextRequest) {
     }),
   })
 
+  if (!tokenRes.ok) {
+    const errorText = await tokenRes.text();
+    console.error("LINEトークン取得失敗:", errorText);
+    return new Response("LINEトークン取得エラー", { status: 500 });
+  }
+
+
   const tokenData = await tokenRes.json()
 
   const idToken = tokenData.id_token // JWT
