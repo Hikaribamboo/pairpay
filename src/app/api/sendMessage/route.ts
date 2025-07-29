@@ -6,7 +6,7 @@ const lineClient = new Client({
 });
 
 export async function POST(req: NextRequest) {
-  const { item, cost, requestId, userName, itemLink } = await req.json();
+  const { userId, userName, purchaseItem, itemCost, itemLink, itemMemo, requestId, } = await req.json();
 
   const groupId = process.env.LINE_GROUP_ID!;
 
@@ -23,13 +23,13 @@ export async function POST(req: NextRequest) {
           contents: [
             {
               type: 'text',
-              text: `${userName} さんから購入リクエスト`,
+              text: `${userName} さんから購入リクエストが届きました！`,
               weight: 'bold',
               size: 'md',
             },
             {
               type: 'text',
-              text: `🛒 ${item} - ¥${cost}`,
+              text: `🗒️ ${purchaseItem} - ¥${itemCost}円`,
               wrap: true,
               color: '#333333',
               size: 'sm',

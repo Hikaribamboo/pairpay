@@ -21,6 +21,17 @@ const PurchaseForm = ({
     setStatus("送信中...");
 
     try {
+      const docRef = await addDoc(collection(db, "purchaseRequests"), {
+        userId,
+        userName,
+        purchaseItem,
+        itemCost,
+        itemLink,
+        itemMemo,
+        createdAt: Timestamp.now(),
+      });
+      const requestId = docRef.id;
+
       // 1. LINEに送信
       const res = await fetch("/api/sendMessage", {
         method: "POST",
@@ -32,21 +43,11 @@ const PurchaseForm = ({
           itemCost,
           itemLink,
           itemMemo,
+          requestId,
         }),
       });
 
       if (!res.ok) throw new Error("LINE送信失敗");
-
-      // 2. Firestoreに保存
-      await addDoc(collection(db, "purchaseRequests"), {
-        userId,
-        userName,
-        purchaseItem,
-        itemCost,
-        itemLink,
-        itemMemo,
-        createdAt: Timestamp.now(),
-      });
 
       setStatus("送信＆保存成功！");
       setPurchaseItem("");
