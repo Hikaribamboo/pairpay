@@ -1,24 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { admin } from "@/lib/firebase-admin";
+import { NextRequest, NextResponse } from "next/server";
+import { adminDb, adminAuth } from "@/lib/firebase-server"; // ← firebase-adminの初期化済みモジュール
+import { Timestamp } from "firebase-admin/firestore";
 
 export async function GET(req: NextRequest) {
-  const code = req.nextUrl.searchParams.get('code')
-  const redirectBase = process.env.REDIRECT_BASE_URL
-  const redirectUri = `${redirectBase}/api/callback`
+  const code = req.nextUrl.searchParams.get("code");
 
-  const tokenRes = await fetch('https://api.line.me/oauth2/v2.1/token', {
-    method: 'POST',
+  if (!code) {
+    return new Response("Missing code", { status: 400 });
+  }
+
+  const redirectBase = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL!;
+  const redirectUri = `${redirectBase}/api/callback`;
+
+  const tokenRes = await fetch("https://api.line.me/oauth2/v2.1/token", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: code!,
+      grant_type: "authorization_code",
+      code,
       redirect_uri: redirectUri,
-      client_id: process.env.LINE_CLIENT_ID!,
+      client_id: process.env.NEXT_PUBLIC_LINE_CLIENT_ID!,
       client_secret: process.env.LINE_CLIENT_SECRET!,
     }),
-  })
+  });
 
   if (!tokenRes.ok) {
     const errorText = await tokenRes.text();
@@ -26,29 +32,33 @@ export async function GET(req: NextRequest) {
     return new Response("LINEトークン取得エラー", { status: 500 });
   }
 
+  const tokenData = await tokenRes.json();
 
-  const tokenData = await tokenRes.json()
-
-  const idToken = tokenData.id_token // JWT
-  const profileRes = await fetch('https://api.line.me/v2/profile', {
+  const profileRes = await fetch("https://api.line.me/v2/profile", {
     headers: {
       Authorization: `Bearer ${tokenData.access_token}`,
     },
-  })
+  });
 
-  const profile = await profileRes.json()
+  if (!profileRes.ok) {
+    return new Response("LINEプロフィール取得エラー", { status: 500 });
+  }
 
-  console.log('LINE user ID:', profile.userId)
+  const profile = await profileRes.json();
 
-  await admin.firestore().doc(`users/${profile.userId}`).set({
+  // Firestore にユーザー情報を保存（merge: true で上書き防止）
+  await adminDb.collection("users").doc(profile.userId).set({
     userName: profile.displayName,
     userId: profile.userId,
-    lastLogin: admin.firestore.Timestamp.now(),
+    lastLogin: Timestamp.now(),
   }, { merge: true });
 
-  const firebaseToken = await admin.auth().createCustomToken(profile.userId);
-  
-  return NextResponse.redirect(
-    `${redirectBase}/?uid=${profile.userId}&name=${encodeURIComponent(profile.displayName)}&token=${firebaseToken}`
-  );
+  // Firebaseカスタムトークンを発行
+  const firebaseToken = await adminAuth.createCustomToken(profile.userId);
+
+  return NextResponse.json({
+    userId: profile.userId,
+    userName: profile.displayName,
+    firebaseToken,
+  });
 }
