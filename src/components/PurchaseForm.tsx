@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/lib/firebase";
+import { useAtom } from "jotai";
+import { db } from "@/lib/firebase-client";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { userAtom } from "@/atoms/userAtom";
 
-const PurchaseForm = ({
-  userInfo,
-}: {
-  userInfo: { userId: string; userName: string };
-}) => {
-  const { userId, userName } = userInfo;
+const PurchaseForm = () => {
+  const [user] = useAtom(userAtom);
+  const { userId, userName } = user || {};
   const [purchaseItem, setPurchaseItem] = useState("");
   const [itemCost, setItemCost] = useState(0);
   const [itemLink, setItemLink] = useState("");

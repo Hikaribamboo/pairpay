@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import {
   collection,
   onSnapshot,
@@ -10,7 +11,8 @@ import {
   setDoc,
   Timestamp,
 } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db } from "@/lib/firebase-client";
+import { userAtom } from "@/atoms/userAtom";
 
 type Purchase = {
   id: string;
@@ -23,7 +25,9 @@ type Purchase = {
   createdAt: any; // Timestamp型
 };
 
-const PurchaseList = ({ userId }: { userId: string }) => {
+const PurchaseList = () => {
+  const [user] = useAtom(userAtom);
+  const userId = user?.userId;
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
 
