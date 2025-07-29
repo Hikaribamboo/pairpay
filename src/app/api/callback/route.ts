@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { admin } from "@/lib/firebase-admin";
-import { doc, setDoc } from "firebase/firestore"
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
@@ -42,8 +41,8 @@ export async function GET(req: NextRequest) {
   console.log('LINE user ID:', profile.userId)
 
   await admin.firestore().doc(`users/${profile.userId}`).set({
-    displayName: profile.displayName,
-    pictureUrl: profile.pictureUrl,
+    userName: profile.displayName,
+    userId: profile.userId,
     lastLogin: admin.firestore.Timestamp.now(),
   }, { merge: true });
 
