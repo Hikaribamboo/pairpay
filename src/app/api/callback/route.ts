@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { admin } from "@/lib/firebase-admin";
+import { doc, setDoc } from "firebase/firestore"
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
-  const redirectUri = 'https://pairpay.vercel.app/api/callback'
+  const redirectBase = process.env.REDIRECT_BASE_URL
+  const redirectUri = `${redirectBase}/api/callback`
 
   const tokenRes = await fetch('https://api.line.me/oauth2/v2.1/token', {
     method: 'POST',
@@ -38,9 +41,15 @@ export async function GET(req: NextRequest) {
 
   console.log('LINE user ID:', profile.userId)
 
-  // 必要に応じてバックエンド保存 or クッキー化など
+  await admin.firestore().doc(`users/${profile.userId}`).set({
+    displayName: profile.displayName,
+    pictureUrl: profile.pictureUrl,
+    lastLogin: admin.firestore.Timestamp.now(),
+  }, { merge: true });
+
+  const firebaseToken = await admin.auth().createCustomToken(profile.userId);
   
   return NextResponse.redirect(
-    `https://pairpay.vercel.app/?uid=${profile.userId}&name=${encodeURIComponent(profile.displayName)}`
-  )
+    `${redirectBase}/?uid=${profile.userId}&name=${encodeURIComponent(profile.displayName)}&token=${firebaseToken}`
+  );
 }

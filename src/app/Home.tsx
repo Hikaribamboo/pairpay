@@ -10,9 +10,11 @@ export default function Home() {
   const userId = searchParams.get("uid");
   const userName = searchParams.get("name");
 
+  const redirectBase = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL;
+
   useEffect(() => {
     if (!userId || !userName) {
-      const redirectUri = "https://pairpay.vercel.app/api/callback";
+      const redirectUri = `${redirectBase}/api/callback`;
       const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINE_CLIENT_ID}&redirect_uri=${redirectUri}&state=12345&scope=profile%20openid`;
       window.location.href = loginUrl;
     }
