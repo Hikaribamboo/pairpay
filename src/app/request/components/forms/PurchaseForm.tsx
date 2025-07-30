@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useAtom } from "jotai";
-import { db } from "@/lib/firebase-client";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { userAtom } from "@/atoms/userAtom";
+import { createPurchaseRequest } from "@/lib/api/purchase/purchase";
+import { sendRequestLine } from "@/lib/api/line/send-request-message";
 
 const PurchaseForm = () => {
   const [user] = useAtom(userAtom);
-  const { userId, userName } = user || {};
+  const { userId, userName } = user!;
   const [purchaseItem, setPurchaseItem] = useState("");
   const [itemCost, setItemCost] = useState(0);
   const [itemLink, setItemLink] = useState("");
@@ -20,34 +20,24 @@ const PurchaseForm = () => {
     setStatus("送信中...");
 
     try {
-      const docRef = await addDoc(collection(db, "purchaseRequests"), {
+      const requestId = await createPurchaseRequest({
         userId,
         userName,
         purchaseItem,
         itemCost,
         itemLink,
         itemMemo,
-        createdAt: Timestamp.now(),
-        isApproved: false,
-      });
-      const requestId = docRef.id;
-
-      // 1. LINEに送信
-      const res = await fetch("/api/sendMessage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          userName,
-          purchaseItem,
-          itemCost,
-          itemLink,
-          itemMemo,
-          requestId,
-        }),
       });
 
-      if (!res.ok) throw new Error("LINE送信失敗");
+      await sendRequestLine({
+        userId,
+        userName,
+        purchaseItem,
+        itemCost,
+        itemLink,
+        itemMemo,
+        requestId,
+      });
 
       setStatus("送信＆保存成功！");
       setPurchaseItem("");
@@ -62,7 +52,7 @@ const PurchaseForm = () => {
 
   if (!userId) return null;
   return (
-    <div className="w-full max-w-sm bg-white p-6 rounded-2xl shadow-xl">
+    <div className="w-full max-w-sm bg-white">
       <h2 className="text-center text-gray-700 mb-2">
         {userName} さん、こんにちは！
       </h2>
