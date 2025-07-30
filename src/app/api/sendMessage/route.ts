@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
             },
             {
               type: 'text',
-              text: `🗒️ ${purchaseItem} - ¥${itemCost}円`,
+              text: `🗒️ ${purchaseItem}  ${itemCost}円`,
               wrap: true,
-              color: '#333333',
+              color: '#ff7434ff',
               size: 'sm',
             },
             ...(itemLink
@@ -58,21 +58,11 @@ export async function POST(req: NextRequest) {
             {
               type: 'button',
               style: 'primary',
-              color: '#22C55E', // green-400
+              color: '#2b6de7ff', // green-400
               action: {
                 type: 'postback',
-                label: '賛成👍',
+                label: '賛成🙌🏻💗',
                 data: `action=agree&id=${requestId}`,
-              },
-            },
-            {
-              type: 'button',
-              style: 'primary',
-              color: '#38BDF8', // sky-400
-              action: {
-                type: 'postback',
-                label: 'スルー👋',
-                data: `action=skip&id=${requestId}`,
               },
             },
           ],

@@ -36,8 +36,8 @@ export const openapi: OpenAPIV3_1.Document = {
         properties: {
           item: { type: "string", example: "ゴミ袋45L" },
           cost: { type: "number", example: 450 },
-          link: { type: "string", nullable: true },
-          memo: { type: "string", nullable: true },
+          link: { type: ["string", "null"] },
+          memo: { type: ["string", "null"] },
         },
       },
       DepositCreate: {
@@ -45,7 +45,7 @@ export const openapi: OpenAPIV3_1.Document = {
         required: ["amount"],
         properties: {
           amount: { type: "number", example: 3000 },
-          memo: { type: "string", nullable: true },
+          memo: { type: ["string", "null"] },
         },
       },
       BalanceResponse: {
@@ -70,7 +70,7 @@ export const openapi: OpenAPIV3_1.Document = {
         required: ["amount"],
         properties: {
           amount: { type: "number", example: 1000 },
-          memo: { type: "string", nullable: true },
+          memo: { type: ["string", "null"] },
         },
       },
       CardMasked: {

@@ -28,6 +28,7 @@ const PurchaseForm = () => {
         itemLink,
         itemMemo,
         createdAt: Timestamp.now(),
+        isApproved: false,
       });
       const requestId = docRef.id;
 
