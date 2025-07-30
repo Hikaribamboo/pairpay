@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { createPurchaseRequest } from "@/lib/api/purchase/purchase";
+import { createPurchaseRequest } from "@/lib/api/purchase/new";
 import { sendRequestLine } from "@/lib/api/line/send-request-message";
 
 const PurchaseForm = () => {

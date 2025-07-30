@@ -2,17 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import {
-  collection,
-  onSnapshot,
-  query,
-  orderBy,
-  doc,
-  setDoc,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
 import { userAtom } from "@/atoms/userAtom";
+import { fetchAllPurchases } from "@/lib/api/purchase/all";
 
 type Purchase = {
   id: string;
@@ -32,22 +25,20 @@ const PurchaseList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "purchaseRequests"),
-      orderBy("createdAt", "desc")
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Purchase, "id">),
-      }));
-      setPurchases(list);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    const load = async () => {
+      try {
+        const data = await fetchAllPurchases();
+        setPurchases(data);
+      } catch (e) {
+        console.error("リクエストリスト取得エラー", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
+
+  if (loading) return <p>読み込み中…</p>;
 
   const handleReaction = async (requestId: string, type: "agree" | "skip") => {
     if (!userId) return;
@@ -78,7 +69,10 @@ const PurchaseList = () => {
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-800">{item.purchaseItem}</div>
               <div className="text-sm font-semibold">
-                ¥{item.itemCost.toLocaleString()}
+                {typeof item.itemCost === "number"
+                  ? item.itemCost.toLocaleString()
+                  : "不明"}{" "}
+                円
               </div>
 
               {/* 自分以外が作成したリクエストに対してボタン表示 */}
