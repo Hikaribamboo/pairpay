@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-server";
+import { Purchase } from "@/types/purchase";
+import { sendApprovalNotification } from "@/lib/services/line";
 
 export async function GET(
   req: NextRequest,
@@ -29,7 +31,13 @@ export async function PATCH(
 
   // 更新後のドキュメントを取得
   const afterSnap = await docRef.get();
-  const updated = { id: requestId, ...afterSnap.data() };
+  const updatedPurchase = { id: requestId, ...afterSnap.data() } as Purchase;
 
-  return NextResponse.json(updated);
+  // Web UI 経由の更新は push を使う（replyTokenはない）
+  if (isApproved && updatedPurchase.userId) {
+    const GROUP_ID = process.env.LINE_GROUP_ID!;
+    await sendApprovalNotification(updatedPurchase, { groupId: GROUP_ID });
+  }
+
+  return NextResponse.json(updatedPurchase);
 }

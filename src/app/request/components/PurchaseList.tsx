@@ -86,19 +86,15 @@ const PurchaseList = () => {
                   {item.userName}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
-                  {item.userId !== userId ? (
-                    item.isApproved ? (
-                      <span className="text-green-600">承認済</span>
-                    ) : (
-                      <button
-                        onClick={() => handleApprove(item.id)}
-                        className="font-bold text-blue-600 hover:underline"
-                      >
-                        承認
-                      </button>
-                    )
+                  {item.isApproved ? (
+                    <span className="text-green-600">承認済</span>
                   ) : (
-                    <span className="text-xs text-gray-400">自分</span>
+                    <button
+                      onClick={() => handleApprove(item.id)}
+                      className="font-bold text-blue-600 hover:underline"
+                    >
+                      承認
+                    </button>
                   )}
                 </td>
               </tr>

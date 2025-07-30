@@ -1,34 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as line from "@line/bot-sdk";
 import { Purchase } from "@/types/purchase";
+import { sendApprovalNotification } from "@/lib/services/line";
 
-// LINE クライアント初期化
 const config = {
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
 };
-const client = new line.Client(config);
 
 export async function POST(req: NextRequest) {
-  const signature = req.headers.get("x-line-signature") || "";
   const body = await req.text();
+  const signature = req.headers.get("x-line-signature") || "";
+
+  // 署名チェック。失敗しても 200 を返す
   if (!line.validateSignature(body, config.channelSecret, signature)) {
-    return new Response("Invalid signature", { status: 401 });
+    console.error("Invalid signature");
+    return NextResponse.json({ ok: false }, { status: 200 });
   }
 
-  const { events } = JSON.parse(body);
-  const updatedResults: Purchase[] = [];
+  let events: line.WebhookEvent[] = [];
+  try {
+    events = JSON.parse(body).events;
+  } catch (e) {
+    console.error("Failed to parse webhook body", e);
+    return NextResponse.json({ ok: false }, { status: 200 });
+  }
 
+  // イベントごとに順に処理
   for (const event of events) {
     if (event.type !== "postback") continue;
-    const data = new URLSearchParams(event.postback.data);
-    const action = data.get("action");
-    const requestId = data.get("id");
-    if (!action || !requestId) continue;
 
-    // 承認処理を内部 API に委譲
+    const data = new URLSearchParams(event.postback.data);
+    const requestId = data.get("id");
+    if (!requestId) continue;
+
+    // 1) 内部 PATCH API 呼び出し
     const patchRes = await fetch(
-      `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/purchases/${requestId}`,
+      `/api/purchases/${requestId}`,  // 相対パスを推奨
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -37,23 +45,21 @@ export async function POST(req: NextRequest) {
     );
 
     if (!patchRes.ok) {
-      console.error(`Failed to PATCH /api/purchases/${requestId}`);
-      continue;
+      console.error(`PATCH failed for ${requestId}`, await patchRes.text());
+      continue;  // 次のイベントへ
     }
 
-    // 2) 更新後の値を受け取る
-    const updatedData = await patchRes.json();
-    updatedResults.push(updatedData);
+    // 2) 更新後 Purchase オブジェクトの取得
+    const updatedPurchase: Purchase = await patchRes.json();
 
-    // LINE に返信
-    await client.replyMessage(event.replyToken, {
-      type: "text",
-      text: `リクエスト ${requestId} を承認しました！`,
-    });
+    // 3) LINE への通知を await する
+    try {
+      await sendApprovalNotification(updatedPurchase, { replyToken: event.replyToken })
+    } catch (e) {
+      console.error("Failed to send LINE notification", e, updatedPurchase);
+    }
   }
 
-  return NextResponse.json({
-    ok: true,
-    updated: updatedResults,
-  });
+  // 最後に必ず 200 OK を返す
+  return NextResponse.json({ ok: true }, { status: 200 });
 }
