@@ -12,6 +12,7 @@
     "@line/bot-sdk": "^10.0.0",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.4.0",
+    "jotai": "^2.12.5",
     "next": "15.4.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
