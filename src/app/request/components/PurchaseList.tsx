@@ -6,17 +6,7 @@ import { collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
 import { userAtom } from "@/atoms/userAtom";
 import { fetchAllPurchases } from "@/lib/api/purchase/all";
-
-type Purchase = {
-  id: string;
-  userId: string;
-  userName: string;
-  purchaseItem: string;
-  itemCost: number;
-  itemLink?: string;
-  itemMemo?: string;
-  createdAt: any;
-};
+import type { Purchase } from "@/types/purchase";
 
 const PurchaseList = () => {
   const [user] = useAtom(userAtom);
@@ -28,6 +18,7 @@ const PurchaseList = () => {
     const load = async () => {
       try {
         const data = await fetchAllPurchases();
+        setLoading(false);
         setPurchases(data);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
@@ -58,37 +49,63 @@ const PurchaseList = () => {
     return <p className="text-center text-gray-500 mt-4">読み込み中...</p>;
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <h1 className="text-xl font-bold text-center text-gray-800 mb-4">
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         リクエスト一覧
       </h1>
 
-      <div className="space-y-2">
-        {purchases.map((item) => (
-          <div key={item.id} className="border-b pb-2">
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-800">{item.purchaseItem}</div>
-              <div className="text-sm font-semibold">
-                {typeof item.itemCost === "number"
-                  ? item.itemCost.toLocaleString()
-                  : "不明"}{" "}
-                円
-              </div>
-
-              {/* 自分以外が作成したリクエストに対してボタン表示 */}
-              {item.userId !== userId ? (
-                <button
-                  onClick={() => handleReaction(item.id, "agree")}
-                  className="text-sm text-blue-600 underline hover:text-blue-800"
-                >
-                  Approve
-                </button>
-              ) : (
-                <span className="text-xs text-gray-400">自分</span>
-              )}
-            </div>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 text-left">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-sm font-medium text-gray-600">
+                購入項目
+              </th>
+              <th className="px-4 py-2 text-sm font-medium text-gray-600">
+                金額
+              </th>
+              <th className="px-4 py-2 text-sm font-medium text-gray-600">
+                申請者
+              </th>
+              <th className="px-4 py-2 text-sm font-medium text-gray-600">
+                操作
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {purchases.map((item) => (
+              <tr key={item.id}>
+                <td className="px-4 py-2 text-sm text-gray-800">
+                  {item.purchaseItem}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-800">
+                  {typeof item.itemCost === "number"
+                    ? `${item.itemCost.toLocaleString()} 円`
+                    : "不明"}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-800">
+                  {item.userName}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-800">
+                  {item.userId !== userId ? (
+                    item.isApproved ? (
+                      <span className="text-green-600">承認済</span>
+                    ) : (
+                      <button
+                        onClick={() => handleReaction(item.id, "agree")}
+                        className="font-bold text-blue-600 hover:underline"
+                      >
+                        承認
+                      </button>
+                    )
+                  ) : (
+                    <span className="text-xs text-gray-400">自分</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
