@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Home from "./Home";
+import Home from "./home/Home";
 
 export default function HomeWrapper() {
   return (
