@@ -22,7 +22,7 @@ type Purchase = {
   itemCost: number;
   itemLink?: string;
   itemMemo?: string;
-  createdAt: any; // Timestamp型
+  createdAt: any;
 };
 
 const PurchaseList = () => {
@@ -63,51 +63,39 @@ const PurchaseList = () => {
     });
   };
 
-  if (loading) return <p>読み込み中...</p>;
+  if (loading)
+    return <p className="text-center text-gray-500 mt-4">読み込み中...</p>;
 
   return (
-    <div className="max-w-md mx-auto p-6 space-y-4">
-      <h1 className="text-xl font-bold text-center text-gray-800">
+    <div className="max-w-md mx-auto p-4">
+      <h1 className="text-xl font-bold text-center text-gray-800 mb-4">
         リクエスト一覧
       </h1>
-      {purchases.map((item) => (
-        <div key={item.id} className="border-b py-2">
-          <p className="font-semibold">
-            {item.purchaseItem} - ¥{item.itemCost}
-          </p>
-          {item.itemLink && (
-            <a
-              href={item.itemLink}
-              className="text-blue-500 text-sm"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              リンク
-            </a>
-          )}
-          {item.itemMemo && (
-            <p className="text-sm text-gray-600">{item.itemMemo}</p>
-          )}
 
-          {/* 🔽 提案者でない場合だけ表示 */}
-          {item.userId !== userId && (
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => handleReaction(item.id, "agree")}
-                className="px-3 py-1 rounded-md text-white bg-green-400"
-              >
-                賛成👍
-              </button>
-              <button
-                onClick={() => handleReaction(item.id, "skip")}
-                className="px-3 py-1 rounded-md text-white bg-sky-400"
-              >
-                スルー👋
-              </button>
+      <div className="space-y-2">
+        {purchases.map((item) => (
+          <div key={item.id} className="border-b pb-2">
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-800">{item.purchaseItem}</div>
+              <div className="text-sm font-semibold">
+                ¥{item.itemCost.toLocaleString()}
+              </div>
+
+              {/* 自分以外が作成したリクエストに対してボタン表示 */}
+              {item.userId !== userId ? (
+                <button
+                  onClick={() => handleReaction(item.id, "agree")}
+                  className="text-sm text-blue-600 underline hover:text-blue-800"
+                >
+                  Approve
+                </button>
+              ) : (
+                <span className="text-xs text-gray-400">自分</span>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

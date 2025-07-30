@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
               type: 'text',
               text: `🗒️ ${purchaseItem}  ${itemCost}円`,
               wrap: true,
-              color: '#ff7434ff',
+              color: '#ff5100ff',
               size: 'sm',
             },
             ...(itemLink
