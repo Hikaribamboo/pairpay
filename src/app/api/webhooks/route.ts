@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as line from "@line/bot-sdk";
 import { adminDb } from "@/lib/firebase-server";
 
-// LINEとFirebase初期化（初回のみ）
+// LINE初期化（初回のみ）
 const config = {
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,

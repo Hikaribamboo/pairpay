@@ -44,3 +44,7 @@ firebase-value.json
 
 rational-dir.txt
 
+debug/
+
+src/app/api/rational-api-dir.txt
+

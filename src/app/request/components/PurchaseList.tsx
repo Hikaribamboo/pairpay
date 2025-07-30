@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { collection, doc, setDoc, Timestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase-client";
 import { userAtom } from "@/atoms/userAtom";
 import { fetchAllPurchases } from "@/lib/api/purchase/all";
 import type { Purchase } from "@/types/purchase";
+import { updatePurchases } from "@/lib/api/purchase/update";
 
 const PurchaseList = () => {
   const [user] = useAtom(userAtom);
@@ -14,12 +13,26 @@ const PurchaseList = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleApprove = async (requestId: string) => {
+    try {
+      setLoading(true);
+      const updatedPurchase: Purchase = await updatePurchases(requestId);
+      setPurchases((prev) =>
+        prev.map((p) => (p.id === updatedPurchase.id ? updatedPurchase : p))
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await fetchAllPurchases();
+        const purchases = await fetchAllPurchases();
         setLoading(false);
-        setPurchases(data);
+        setPurchases(purchases);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -30,20 +43,6 @@ const PurchaseList = () => {
   }, []);
 
   if (loading) return <p>読み込み中…</p>;
-
-  const handleReaction = async (requestId: string, type: "agree" | "skip") => {
-    if (!userId) return;
-
-    const reactionRef = doc(
-      collection(db, "purchaseRequests", requestId, "reactions"),
-      userId
-    );
-
-    await setDoc(reactionRef, {
-      type,
-      reactedAt: Timestamp.now(),
-    });
-  };
 
   if (loading)
     return <p className="text-center text-gray-500 mt-4">読み込み中...</p>;
@@ -92,7 +91,7 @@ const PurchaseList = () => {
                       <span className="text-green-600">承認済</span>
                     ) : (
                       <button
-                        onClick={() => handleReaction(item.id, "agree")}
+                        onClick={() => handleApprove(item.id)}
                         className="font-bold text-blue-600 hover:underline"
                       >
                         承認
