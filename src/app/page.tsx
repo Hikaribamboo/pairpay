@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Home from "./Home"; // "./PageInner" でも可
+import Home from "./Home";
 
 export default function HomeWrapper() {
   return (

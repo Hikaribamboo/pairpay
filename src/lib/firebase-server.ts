@@ -1,15 +1,24 @@
-import { initializeApp, applicationDefault, cert, getApps, getApp } from "firebase-admin/app";
+// lib/firebase-server.ts
+import { initializeApp, getApps, getApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 
-const firebaseAdminConfig = {
-  credential: applicationDefault(), // または cert(serviceAccountKey)
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+// Base64 形式の秘密鍵を復号
+const privateKey = Buffer
+  .from(process.env.FIREBASE_PRIVATE_KEY_B64!, "base64")
+  .toString("utf8");
+
+// サービスアカウント情報
+const serviceAccount = {
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  privateKey,
 };
 
-const adminApp = getApps().length === 0 ? initializeApp(firebaseAdminConfig) : getApp();
+// 既に初期化済みならそれを使う
+const adminApp = getApps().length
+  ? getApp()
+  : initializeApp({ credential: cert(serviceAccount) });
 
-const adminDb = getFirestore(adminApp);
-const adminAuth = getAuth(adminApp);
-
-export { adminDb, adminAuth };
+export const adminDb = getFirestore(adminApp);
+export const adminAuth = getAuth(adminApp);
