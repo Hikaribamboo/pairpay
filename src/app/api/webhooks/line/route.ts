@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     // 1) 内部 PATCH API 呼び出し
     const patchRes = await fetch(
-      `/api/purchases/${requestId}`,  // 相対パスを推奨
+      `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/purchases/${requestId}`, // 相対パスを推奨
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -46,15 +46,23 @@ export async function POST(req: NextRequest) {
 
     if (!patchRes.ok) {
       console.error(`PATCH failed for ${requestId}`, await patchRes.text());
-      continue;  // 次のイベントへ
+      continue; // 次のイベントへ
     }
 
     // 2) 更新後 Purchase オブジェクトの取得
     const updatedPurchase: Purchase = await patchRes.json();
-
+    await sendApprovalNotification(updatedPurchase, {
+      replyToken: event.replyToken,
+    });
+    await sendApprovalNotification(updatedPurchase, {
+      replyToken: event.replyToken,
+    });
+    console.log("Line replyed token: ", event.replyToken);
     // 3) LINE への通知を await する
     try {
-      await sendApprovalNotification(updatedPurchase, { replyToken: event.replyToken })
+      await sendApprovalNotification(updatedPurchase, {
+        replyToken: event.replyToken,
+      });
     } catch (e) {
       console.error("Failed to send LINE notification", e, updatedPurchase);
     }
