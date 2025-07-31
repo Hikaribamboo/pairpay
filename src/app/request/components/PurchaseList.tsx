@@ -91,7 +91,9 @@ const PurchaseList = () => {
                   {item.userName}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
-                  {item.isApproved ? (
+                  {item.userId === userId ? (
+                    <span className="text-gray-600">自分</span>
+                  ) : item.isApproved ? (
                     <span className="text-green-600">承認済</span>
                   ) : (
                     <button

@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import PurchaseList from "./components/PurchaseList";
-import PurchaseForm from "./components/forms/PurchaseForm"; // 仮にこれだけ先
+import PurchaseRequestForm from "./components/forms/PurchaseRequestForm"; // 仮にこれだけ先
 import { Plus } from "lucide-react";
+import { IoCloseSharp } from "react-icons/io5";
+import DepositRequestForm from "./components/forms/DepositRequestForm";
 
 const RequestPage = () => {
   const [showModal, setShowModal] = useState(false);
@@ -71,16 +73,13 @@ const RequestPage = () => {
               </>
             ) : (
               <>
-                <button
+                <IoCloseSharp
                   onClick={closeModal}
-                  className="text-sm text-gray-400 float-right"
-                >
-                  ✕
-                </button>
-                {formType === "purchase" && <PurchaseForm />}
-                {formType === "deposit" && (
-                  <p>🟢 入金フォーム Coming Soon...</p>
-                )}
+                  className="text-3xl text-gray-400 float-right"
+                />
+
+                {formType === "purchase" && <PurchaseRequestForm />}
+                {formType === "deposit" && <DepositRequestForm />}
                 {formType === "saving" && <p>🟣 貯金フォーム Coming Soon...</p>}
               </>
             )}
