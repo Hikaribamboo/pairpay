@@ -20,7 +20,7 @@ export async function sendApprovalNotification(
 ) {
   const message = {
     type: "text" as const,
-    text: `${purchase.userName} が「${purchase.purchaseItem}」を承認しました！`,
+    text: `「${purchase.purchaseItem}」が承認されました！`,
   };
 
   try {
