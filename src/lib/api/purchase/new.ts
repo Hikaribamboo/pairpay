@@ -1,6 +1,3 @@
-import { db } from "@/lib/firebase-client";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
-
 export const createPurchaseRequest = async ({
   userId,
   userName,
@@ -16,16 +13,21 @@ export const createPurchaseRequest = async ({
   itemLink: string;
   itemMemo: string;
 }) => {
-  const docRef = await addDoc(collection(db, "purchaseRequests"), {
-    userId,
-    userName,
-    purchaseItem,
-    itemCost,
-    itemLink,
-    itemMemo,
-    createdAt: Timestamp.now(),
-    isApproved: false,
+  const res = await fetch("/api/webhooks/purchase", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId,
+      userName,
+      purchaseItem,
+      itemCost,
+      itemLink,
+      itemMemo,
+    }),
   });
-
-  return docRef.id;
+  if (!res.ok) {
+    throw new Error(`Failed to create purchase request: ${res.statusText}`);
+  }
+  const { requestId } = await res.json();
+  return requestId;
 };

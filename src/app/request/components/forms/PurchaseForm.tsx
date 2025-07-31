@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { createPurchaseRequest } from "@/lib/api/purchase/new";
-import { sendRequestLine } from "@/lib/api/line/send-request-message";
 
 const PurchaseForm = () => {
   const [user] = useAtom(userAtom);
@@ -20,25 +18,6 @@ const PurchaseForm = () => {
     setStatus("送信中...");
 
     try {
-      const requestId = await createPurchaseRequest({
-        userId,
-        userName,
-        purchaseItem,
-        itemCost,
-        itemLink,
-        itemMemo,
-      });
-
-      await sendRequestLine({
-        userId,
-        userName,
-        purchaseItem,
-        itemCost,
-        itemLink,
-        itemMemo,
-        requestId,
-      });
-
       setStatus("送信＆保存成功！");
       setPurchaseItem("");
       setItemCost(0);
