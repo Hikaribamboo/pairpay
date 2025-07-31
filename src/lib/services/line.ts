@@ -25,7 +25,6 @@ export async function sendApprovalNotification(
 
   try {
     if ("replyToken" in target) {
-      console.log("reply noti was called");
       await client.replyMessage(target.replyToken, message);
     } else if ("groupId" in target) {
       await client.pushMessage(target.groupId, message);
