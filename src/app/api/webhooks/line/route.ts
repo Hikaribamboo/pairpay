@@ -7,6 +7,7 @@ const config = {
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
 };
+const client = new line.Client(config);
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -32,7 +33,15 @@ export async function POST(req: NextRequest) {
 
     const data = new URLSearchParams(event.postback.data);
     const requestId = data.get("id");
+    const purchaseItem = data.get("purchaseItem");
+    const replyToken = event.replyToken;
+
     if (!requestId) continue;
+
+    const userId = event.source.userId;
+    if (!userId) {
+      continue;
+    }
 
     // 1) 内部 PATCH API 呼び出し
     const patchRes = await fetch(
@@ -40,9 +49,25 @@ export async function POST(req: NextRequest) {
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isApproved: true }),
+        body: JSON.stringify({ isApproved: true, userId }),
       }
     );
+
+    if (patchRes.status === 403) {
+      await client.replyMessage(replyToken, {
+        type: "text",
+        text: "自分のリクエストは承認できません",
+      });
+      continue;
+    }
+
+    if (patchRes.status === 409) {
+      await client.replyMessage(replyToken, {
+        type: "text",
+        text: `「${purchaseItem}」はすでに承認されています`,
+      });
+      continue;
+    }
 
     if (!patchRes.ok) {
       console.error(`PATCH failed for ${requestId}`, await patchRes.text());
@@ -57,7 +82,6 @@ export async function POST(req: NextRequest) {
     await sendApprovalNotification(updatedPurchase, {
       replyToken: event.replyToken,
     });
-    console.log("Line replyed token: ", event.replyToken);
     // 3) LINE への通知を await する
     try {
       await sendApprovalNotification(updatedPurchase, {

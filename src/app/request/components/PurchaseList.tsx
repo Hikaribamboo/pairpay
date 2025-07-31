@@ -9,14 +9,19 @@ import { updatePurchases } from "@/lib/api/purchase/update";
 
 const PurchaseList = () => {
   const [user] = useAtom(userAtom);
-  const userId = user?.userId;
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const userId = user?.userId;
+
   const handleApprove = async (requestId: string) => {
+    if (!userId) return;
     try {
       setLoading(true);
-      const updatedPurchase: Purchase = await updatePurchases(requestId);
+      const updatedPurchase: Purchase = await updatePurchases(
+        requestId,
+        userId
+      );
       setPurchases((prev) =>
         prev.map((p) => (p.id === updatedPurchase.id ? updatedPurchase : p))
       );
