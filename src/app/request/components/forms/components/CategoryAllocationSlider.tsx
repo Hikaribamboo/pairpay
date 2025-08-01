@@ -1,187 +1,189 @@
 "use client";
 
-import { Range, getTrackBackground } from "react-range";
+import { Slider } from "@mui/material"; // もし MUI スライダーを使うなら
 import { useMemo, useState, useEffect } from "react";
+import { Box, Typography } from "@mui/material";
 
 type Props = {
-  totalAmount: number; // 合計貯金額（円）
-  selectedCategories: string[]; // 例: ["結婚式","家族旅行","車"]
+  totalAmount: number;
+  selectedCategories: string[];
 };
 
-const STEP = 1;
+const COLORS = [
+  "#54de92ff",
+  "#5ba2f8ff",
+  "#9076f8ff",
+  "#ff7585ff",
+  "#ffee38ff",
+];
+
+const clamp = (n: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, n));
 const MIN = 0;
 const MAX = 100;
-
-const colors = [
-  "#d9f99d", // lime-300
-  "#7dd3fc", // sky-300
-  "#c4b5fd", // purple-300
-  "#fda4af", // rose-300
-  "#fcd34d", // amber-300
-];
 
 export default function CategoryAllocationSlider({
   totalAmount,
   selectedCategories,
 }: Props) {
   const safeTotal = Number.isFinite(totalAmount) ? totalAmount : 0;
-  const segCount = Math.max(0, selectedCategories.length); // セグメント数＝カテゴリ数
-  const handleCount = Math.max(0, segCount - 1);
+  const segmentCount = Math.max(0, selectedCategories.length);
+  const handleCount = Math.max(0, segmentCount - 1);
 
-  // 均等初期値を作る関数（ハンドル数に応じて [.., ..] を返す）
+  // 均等値生成
   const makeEvenValues = (hc: number, sc: number) =>
-    Array(hc)
-      .fill(0)
-      .map((_, i) => Math.round(((i + 1) * MAX) / sc));
+    Array.from({ length: hc }, (_, i) => Math.round(((i + 1) * MAX) / sc));
 
-  // 初期値
-  const [values, setValues] = useState<number[]>(
-    makeEvenValues(handleCount, segCount)
+  const [values, setValues] = useState<number[]>(() =>
+    makeEvenValues(handleCount, segmentCount)
   );
 
-  // カテゴリ数が変わったら均等に再初期化（ズレ防止）
+  // カテゴリ数変化時に再初期化（長さ依存）
   useEffect(() => {
-    setValues(makeEvenValues(handleCount, segCount));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [segCount]); // 長さだけを見る
+    setValues(makeEvenValues(handleCount, segmentCount));
+  }, [handleCount, segmentCount]);
 
-  // 万一 values の長さがズレたら即同期
-  useEffect(() => {
-    if (values.length !== handleCount) {
-      setValues(makeEvenValues(handleCount, segCount));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleCount]);
+  // 万一 values の長さが合ってなければ補正（レンダーごとに新しい hook は増えない）
+  const normalValues = useMemo(() => {
+    if (values.length === handleCount) return values;
+    return makeEvenValues(handleCount, segmentCount);
+  }, [values, handleCount, segmentCount]);
 
-  // 計算用の values（ズレ時は均等値で補正）
-  const normalValues =
-    values.length === handleCount
-      ? values
-      : makeEvenValues(handleCount, segCount);
-
-  // 各セグメントの割合（%）
+  // 各セグメントの割合（%） -- 常に呼ばれる
   const percentages = useMemo(() => {
-    if (segCount < 2) return segCount === 1 ? [100] : [];
+    if (segmentCount < 2) {
+      return segmentCount === 1 ? [100] : [];
+    }
     const stops = [MIN, ...normalValues, MAX];
     return stops.slice(1).map((v, i) => v - stops[i]);
-  }, [normalValues, segCount]);
+  }, [normalValues, segmentCount]);
 
-  // 金額配分（円）
-  const allocations = useMemo(
-    () =>
-      percentages.map((p) => Math.round((p / 100) * Math.max(0, safeTotal))),
-    [percentages, safeTotal]
+  // 円の配分
+  const allocations = useMemo(() => {
+    return percentages.map((p) => Math.round((p / 100) * safeTotal));
+  }, [percentages, safeTotal]);
+
+  // 各区間に対応する色（ループ）
+  const segmentColors = Array.from(
+    { length: segmentCount },
+    (_, i) => COLORS[i % COLORS.length]
   );
 
-  // カテゴリが1つ以下ならスライダーは不要
-  if (segCount < 2) return null;
+  // 背景グラデーション（境界をシャープにするため start/end を二回ずつ指定）
+  const gradient = useMemo(() => {
+    const stops = [0, ...values, 100]; // 0, thumb..., 100
+    const parts: string[] = [];
+    for (let i = 0; i < segmentCount; i++) {
+      const start = stops[i];
+      const end = stops[i + 1];
+      const color = segmentColors[i];
+      parts.push(`${color} ${start}%`);
+      parts.push(`${color} ${end}%`);
+    }
+    return `linear-gradient(to right, ${parts.join(", ")})`;
+  }, [values, segmentCount, segmentColors]);
 
   return (
-    <div className="w-full max-w-xl mx-auto mt-4">
-      {/* スライダーバー */}
-      <div className="mb-2">
-        <div className="relative h-6">
-          <Range
-            values={normalValues}
-            step={STEP}
-            min={MIN}
-            max={MAX}
-            onChange={(vals) => {
-              const safe = (vals ?? [])
-                .map((v) =>
-                  Number.isFinite(v)
-                    ? Math.min(MAX, Math.max(MIN, Math.round(v)))
-                    : 0
-                )
-                .sort((a, b) => a - b);
-              setValues(safe);
-            }}
-            // ✅ 親（ref を付ける要素）を position: relative に
-            // ✅ children（thumb）はバーとは「兄弟」にして上に描画
-            renderTrack={({ props, children }) => {
-              const { key: _omitKey, style, ...rest } = (props as any) ?? {};
-              return (
-                <div
-                  {...rest}
-                  style={{
-                    ...(style || {}),
-                    position: "relative", // ★これが重要
-                    height: 24,
-                    width: "100%",
-                    display: "flex",
-                    touchAction: "none",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: 0,
-                      right: 0,
-                      transform: "translateY(-50%)",
-                      height: 8,
-                      borderRadius: 9999,
-                      background: getTrackBackground({
-                        values: normalValues,
-                        colors: colors.slice(0, segCount),
-                        min: MIN,
-                        max: MAX,
-                      }),
-                    }}
-                  />
-                  {children} {/* ← thumb をバーの上に重ねる */}
-                </div>
-              );
-            }}
-            // ✅ props.style を必ずマージ。zIndex も少し上げる
-            renderThumb={({ props, index }) => {
-              const { key: _omitKey, style, ...rest } = (props as any) ?? {};
-              return (
-                <div
-                  {...rest}
-                  style={{
-                    ...(style || {}),
-                    zIndex: 2,
-                    height: 20,
-                    width: 20,
-                    borderRadius: 9999,
-                    backgroundColor: "#fff",
-                    border: "2px solid #3b82f6",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
-                    cursor: "pointer",
-                  }}
-                />
-              );
+    <Box className="w-full max-w-xl mx-auto mt-4">
+      {/* スライダー */}
+      <Box className="mb-2 px-2">
+        <Box
+          sx={{
+            position: "relative",
+            height: 40,
+            userSelect: "none",
+          }}
+        >
+          {/* 自前の色分けバー（全体） */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: 0,
+              right: 0,
+              height: 12,
+              transform: "translateY(-50%)",
+              borderRadius: 999,
+              background: gradient,
+              zIndex: 1,
             }}
           />
-        </div>
-      </div>
+          {/* 透明にした MUI スライダーを上に重ねる */}
+          <Slider
+            value={values}
+            min={0}
+            max={100}
+            step={1}
+            onChange={(_, newValue) => {
+              if (!Array.isArray(newValue)) return;
+              const sanitized = newValue
+                .map((v) => clamp(Math.round(v), 0, 100))
+                .sort((a, b) => a - b);
+              setValues(sanitized);
+            }}
+            disableSwap
+            valueLabelDisplay="off"
+            aria-labelledby="allocation-slider"
+            sx={{
+              position: "relative",
+              zIndex: 2,
+              px: 0,
+              "& .MuiSlider-rail": {
+                opacity: 0,
+                background: "none",
+              },
+              "& .MuiSlider-track": {
+                background: "none",
+                height: 12,
+              },
+              "& .MuiSlider-track.Mui-active": {
+                background: "none",
+              },
+              "& .MuiSlider-thumb": {
+                height: 24,
+                width: 24,
+                marginTop: "-2px",
+                backgroundColor: "#fff",
+                border: "2px solid #64748b",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                cursor: "pointer",
+                "&.Mui-focusVisible, &:focus-visible": {
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                },
+                "&:hover": {
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.35)",
+                },
+              },
+              // 全体の color（デフォルトで track に使われる）も透明に
+              color: "transparent",
+            }}
+          />
+        </Box>
+      </Box>
 
       {/* 各カテゴリの配分表示 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+      <Box className="flex justify-center">
         {selectedCategories.map((cat, i) => {
           const yen = allocations[i] ?? 0;
           const pct = percentages[i] ?? 0;
           return (
-            <div key={`${cat}-${i}`} className="flex flex-col items-center">
-              <span className="text-xs text-gray-500">{cat}</span>
-              <div className="text-lg font-semibold">
+            <Box
+              key={`${cat}-${i}`}
+              className="flex flex-col items-center mx-2"
+            >
+              <Typography variant="caption" color="text.secondary">
+                {cat}
+              </Typography>
+              <Typography variant="h6" fontWeight={500}>
                 {yen.toLocaleString()} 円
-              </div>
-              <div className="text-sm text-gray-400">{pct.toFixed(1)}%</div>
-            </div>
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {pct.toFixed(1)}%
+              </Typography>
+            </Box>
           );
         })}
-      </div>
-
-      {/* 合計チェック（必ずズレないが、見える化） */}
-      <div className="mt-2 text-right text-sm text-gray-500">
-        合計:{" "}
-        {allocations
-          .reduce((sum, v) => sum + (Number.isFinite(v) ? v : 0), 0)
-          .toLocaleString()}{" "}
-        円 / {safeTotal.toLocaleString()} 円
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
