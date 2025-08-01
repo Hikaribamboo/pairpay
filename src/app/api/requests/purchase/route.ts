@@ -11,12 +11,12 @@ export async function POST(req: NextRequest) {
     const { userId, userName, purchaseItem, itemCost, itemLink, itemMemo } =
       await req.json();
 
-    // 1) Firestore にドキュメントを作成
+    // Firestore
     const docRef = await adminDb.collection("purchaseRequests").add({
       userId,
       userName,
       purchaseItem,
-      itemCost,
+      itemCost, 
       itemLink,
       itemMemo,
       createdAt: new Date(),
@@ -24,8 +24,40 @@ export async function POST(req: NextRequest) {
     });
     const requestId = docRef.id;
 
-    // 2) LINE グループに Flex メッセージを送信
+    const isValidHttpUrl =
+      typeof itemLink === "string" && /^https?:\/\//i.test(itemLink);
+
+    const bodyContents: any[] = [
+      {
+        type: "text",
+        text: `${userName} さんから購入リクエストが届きました！`,
+        weight: "bold",
+        size: "md",
+      },
+      {
+        type: "text",
+        text: `🗒️ ${purchaseItem}  ${itemCost}円`,
+        wrap: true,
+        color: "#ff5100",
+        size: "sm",
+      },
+    ];
+
+    if (isValidHttpUrl) {
+      bodyContents.push({
+        type: "button",
+        style: "link",
+        height: "sm",
+        action: {
+          type: "uri",
+          label: "商品リンク",
+          uri: itemLink,
+        },
+      });
+    }
+
     const groupId = process.env.LINE_GROUP_ID!;
+
     await lineClient.pushMessage(groupId, {
       type: "flex",
       altText: "購入リクエストが届きました",
@@ -35,35 +67,7 @@ export async function POST(req: NextRequest) {
           type: "box",
           layout: "vertical",
           spacing: "md",
-          contents: [
-            {
-              type: "text",
-              text: `${userName} さんから購入リクエストが届きました！`,
-              weight: "bold",
-              size: "md",
-            },
-            {
-              type: "text",
-              text: `🗒️ ${purchaseItem}  ${itemCost}円`,
-              wrap: true,
-              color: "#ff5100",
-              size: "sm",
-            },
-            ...(itemLink
-              ? [
-                  {
-                    type: "button",
-                    style: "link",
-                    height: "sm",
-                    action: {
-                      type: "uri",
-                      label: "🔗 商品リンク",
-                      uri: itemLink,
-                    },
-                  } as any,
-                ]
-              : []),
-          ],
+          contents: bodyContents,
         },
         footer: {
           type: "box",
@@ -73,7 +77,7 @@ export async function POST(req: NextRequest) {
             {
               type: "button",
               style: "primary",
-              color: "#2b6de7ff", // green-400
+              color: "#2b6de7",
               action: {
                 type: "postback",
                 label: "賛成🙌🏻💗",
@@ -89,8 +93,13 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("Error in POST:", err);
+  } catch (err: any) {
+    const data =
+      err?.originalError?.response?.data ??
+      err?.response?.data ??
+      err?.message ??
+      err;
+    console.error("Error in POST (LINE push):", data);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -22,8 +22,11 @@ const PurchaseRequestForm = () => {
     e.preventDefault();
     setStatus("送信中...");
 
-    if (!userId || !purchaseItem || !itemCost || !userName) {
-      setStatus("ユーザーID、アイテム名、金額は必須です");
+    if (!purchaseItem || !itemCost) {
+      setStatus("アイテム名、金額は必須です");
+      return;
+    } else if (!userId || !userName) {
+      setStatus("ログインしていません");
       return;
     }
     try {
