@@ -1,12 +1,12 @@
 export interface Purchase {
-  id: string;
+  requestId: string;
   userId: string;
   userName: string;
   purchaseItem: string;
   itemCost: string;
   itemLink?: string;
   itemMemo?: string;
-  createdAt: any;
+  createdAt: Date;
   isApproved: boolean;
 }
 

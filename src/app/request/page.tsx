@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PurchaseList from "./components/PurchaseList";
 import PurchaseRequestForm from "./components/forms/PurchaseRequestForm"; // 仮にこれだけ先
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
+import type { Purchase } from "@/types/purchase";
+import { fetchAllPurchases } from "@/lib/api/request/purchase";
 import DepositRequestForm from "./components/forms/DepositRequestForm";
 import SavingRequestForm from "./components/forms/SavingRequest";
 
 const RequestPage = () => {
+  const [approvedPayRequest, setApprovedPayRequest] = useState<Purchase[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const [formType, setFormType] = useState<
     "purchase" | "deposit" | "saving" | null
   >(null);
@@ -24,9 +29,30 @@ const RequestPage = () => {
     setFormType(null);
   };
 
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const purchases = await fetchAllPurchases();
+        setApprovedPayRequest(purchases);
+      } catch (e) {
+        console.error("リクエストリスト取得エラー", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
   return (
     <div className="relative">
-      <PurchaseList />
+      <PurchaseList
+        approvedPayRequest={approvedPayRequest}
+        setApprovedPayRequest={setApprovedPayRequest}
+        loading={loading}
+        setLoading={setLoading}
+      />
 
       {/* ➕ボタン */}
       <button
@@ -79,7 +105,15 @@ const RequestPage = () => {
                   className="text-3xl text-gray-400 float-right"
                 />
 
-                {formType === "purchase" && <PurchaseRequestForm />}
+                {formType === "purchase" && (
+                  <PurchaseRequestForm
+                    onCreated={async () => {
+                      closeModal();
+                      const updated = await fetchAllPurchases();
+                      setApprovedPayRequest(updated);
+                    }}
+                  />
+                )}
                 {formType === "deposit" && <DepositRequestForm />}
                 {formType === "saving" && <SavingRequestForm />}
               </>

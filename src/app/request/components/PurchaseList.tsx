@@ -1,17 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { fetchAllPurchases } from "@/lib/api/request/purchase";
 import type { Purchase } from "@/types/purchase";
 import { updatePurchases } from "@/lib/api/request/purchase";
 
-const PurchaseList = () => {
-  const [user] = useAtom(userAtom);
-  const [purchases, setPurchases] = useState<Purchase[]>([]);
-  const [loading, setLoading] = useState(true);
+interface PurchaseListProps {
+  approvedPayRequest: Purchase[];
+  setApprovedPayRequest: React.Dispatch<React.SetStateAction<Purchase[]>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
+const PurchaseList = ({
+  approvedPayRequest,
+  setApprovedPayRequest,
+  loading,
+  setLoading,
+}: PurchaseListProps) => {
+  const [user] = useAtom(userAtom);
   const userId = user?.userId;
 
   const handleApprove = async (requestId: string) => {
@@ -22,8 +31,10 @@ const PurchaseList = () => {
         requestId,
         userId
       );
-      setPurchases((prev) =>
-        prev.map((p) => (p.id === updatedPurchase.id ? updatedPurchase : p))
+      setApprovedPayRequest((prev) =>
+        prev.map((p) =>
+          p.requestId === updatedPurchase.requestId ? updatedPurchase : p
+        )
       );
     } catch (e) {
       console.error(e);
@@ -37,7 +48,7 @@ const PurchaseList = () => {
       try {
         const purchases = await fetchAllPurchases();
         setLoading(false);
-        setPurchases(purchases);
+        setApprovedPayRequest(purchases);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -77,8 +88,8 @@ const PurchaseList = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {purchases.map((item) => (
-              <tr key={item.id}>
+            {approvedPayRequest.map((item) => (
+              <tr key={item.requestId}>
                 <td className="px-4 py-2 text-sm text-gray-800">
                   {item.purchaseItem}
                 </td>
@@ -97,7 +108,7 @@ const PurchaseList = () => {
                     <span className="text-green-600">承認済</span>
                   ) : (
                     <button
-                      onClick={() => handleApprove(item.id)}
+                      onClick={() => handleApprove(item.requestId)}
                       className="font-bold text-blue-600 hover:underline"
                     >
                       承認

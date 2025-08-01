@@ -7,7 +7,13 @@ import { FaRegPaste } from "react-icons/fa6";
 import { createPurchaseRequest } from "@/lib/api/request/purchase";
 import EnterCost from "./components/EnterCost";
 
-const PurchaseRequestForm = () => {
+interface PurchaseRequestFormProps {
+  onCreated: () => void;
+}
+
+const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
+  onCreated,
+}) => {
   const [user] = useAtom(userAtom);
   const { userId } = user ?? {};
   const userName = user?.userName || "匿名ユーザー";
@@ -45,6 +51,9 @@ const PurchaseRequestForm = () => {
       setItemCost("");
       setItemLink("");
       setItemMemo("");
+      setSelectedCategory("");
+
+      await onCreated();
     } catch (err) {
       console.error(err);
       setStatus("送信または保存に失敗しました");
