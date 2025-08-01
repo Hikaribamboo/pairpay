@@ -1,8 +1,7 @@
 "use client";
 
-import { Slider } from "@mui/material"; // もし MUI スライダーを使うなら
 import { useMemo, useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Slider } from "@mui/material";
 
 type Props = {
   totalAmount: number;
