@@ -6,6 +6,7 @@ import PurchaseRequestForm from "./components/forms/PurchaseRequestForm"; // 仮
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
 import DepositRequestForm from "./components/forms/DepositRequestForm";
+import SavingRequestForm from "./components/forms/SavingRequest";
 
 const RequestPage = () => {
   const [showModal, setShowModal] = useState(false);
@@ -80,7 +81,7 @@ const RequestPage = () => {
 
                 {formType === "purchase" && <PurchaseRequestForm />}
                 {formType === "deposit" && <DepositRequestForm />}
-                {formType === "saving" && <p>🟣 貯金フォーム Coming Soon...</p>}
+                {formType === "saving" && <SavingRequestForm />}
               </>
             )}
           </div>
