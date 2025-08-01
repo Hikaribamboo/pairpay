@@ -37,20 +37,6 @@ const SavingRequestForm = () => {
 
   if (!userId) return null;
 
-  const digits = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "000",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0",
-    "00",
-  ];
   const categories = [
     { value: "wedding", label: "結婚式" },
     { value: "travel", label: "家族旅行" },

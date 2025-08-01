@@ -56,6 +56,7 @@ const PurchaseRequestForm = () => {
       const text = await navigator.clipboard.readText();
       setItemLink(text);
     } catch (err) {
+      console.error(err);
       alert("クリップボードの読み取りに失敗しました");
     }
   };
