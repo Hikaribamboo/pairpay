@@ -2,15 +2,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSetAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { fetchLineLogin, signInAndCache } from "@/lib/api/auth/auth";
 
-export function useLineAuth() {
+export function useLineAuth(code?: string) {
   const router = useRouter();
-  const params = useSearchParams();
-  const code = params.get("code");
   const setUser = useSetAtom(userAtom);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -27,7 +25,6 @@ export function useLineAuth() {
       }
       return false;
     };
-
     if (tryRestore()) return;
 
     const redirectUri = `${window.location.origin}/`;
@@ -53,7 +50,7 @@ export function useLineAuth() {
       return;
     }
 
-    // code も既存セッションもない → 認可ページへ飛ばす
+    // code も既存セッションもない → 認可ページへ
     const loginUrl =
       "https://access.line.me/oauth2/v2.1/authorize?" +
       new URLSearchParams({
