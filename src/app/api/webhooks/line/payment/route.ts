@@ -8,7 +8,7 @@ const lineClient = new Client({
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, userName, paymentTitle, paymentCost, itemLink, paymentMemo } =
+    const { userId, userName, paymentTitle, paymentCost, itemLink, paymentMemo, category } =
       await req.json();
 
     // Firestore
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
       paymentCost,
       itemLink,
       paymentMemo,
+      category,
       createdAt: new Date(),
       isApproved: false,
     });
