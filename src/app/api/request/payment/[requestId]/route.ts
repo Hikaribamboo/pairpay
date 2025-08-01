@@ -2,15 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-server";
 import { Payment } from "@/types/request/payment";
 
-export async function GET(
-  context: { params: Promise<{ requestId: string }> }
-) {
-  const { requestId } = await context.params;
-  const doc = await adminDb.collection("paymentRequests").doc(requestId).get();
-  if (!doc.exists) return new NextResponse("Not found", { status: 404 });
-  return NextResponse.json(doc.data());
-}
-
 export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ requestId: string }> }
