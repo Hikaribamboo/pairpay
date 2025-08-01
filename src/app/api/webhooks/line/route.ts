@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const data = new URLSearchParams(event.postback.data);
     const requestId = data.get("id");
     const purchaseItem = data.get("purchaseItem");
-    const replyToken = event.replyToken;
+    const groupId: string = process.env.LINE_GROUP_ID!;
 
     if (!requestId) continue;
 
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (patchRes.status === 403) {
-      await client.replyMessage(replyToken, {
+      await client.pushMessage(groupId, {
         type: "text",
         text: "自分のリクエストは承認できません",
       });
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (patchRes.status === 409) {
-      await client.replyMessage(replyToken, {
+      await client.pushMessage(groupId, {
         type: "text",
         text: `「${purchaseItem}」はすでに承認されています`,
       });
@@ -76,16 +76,12 @@ export async function POST(req: NextRequest) {
 
     // 2) 更新後 Purchase オブジェクトの取得
     const updatedPurchase: Purchase = await patchRes.json();
-    await sendApprovalNotification(updatedPurchase, {
-      replyToken: event.replyToken,
-    });
-    await sendApprovalNotification(updatedPurchase, {
-      replyToken: event.replyToken,
-    });
+    await sendApprovalNotification(updatedPurchase, { groupId });
+    await sendApprovalNotification(updatedPurchase,{ groupId});
     // 3) LINE への通知を await する
     try {
       await sendApprovalNotification(updatedPurchase, {
-        replyToken: event.replyToken,
+        groupId
       });
     } catch (e) {
       console.error("Failed to send LINE notification", e, updatedPurchase);
