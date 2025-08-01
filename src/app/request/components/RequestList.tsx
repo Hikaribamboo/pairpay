@@ -3,23 +3,23 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { fetchAllPurchases } from "@/lib/api/request/purchase";
-import type { Purchase } from "@/types/purchase";
-import { updatePurchases } from "@/lib/api/request/purchase";
+import { fetchAllPaymentRequestss } from "@/lib/api/request/papyment";
+import type { Payment } from "@/types/request/payment";
+import { updatePayment } from "@/lib/api/request/papyment";
 
-interface PurchaseListProps {
-  approvedPayRequest: Purchase[];
-  setApprovedPayRequest: React.Dispatch<React.SetStateAction<Purchase[]>>;
+interface RequestListProps {
+  approvedPayRequest: Payment[];
+  setApprovedPayRequest: React.Dispatch<React.SetStateAction<Payment[]>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PurchaseList = ({
+const RequestList = ({
   approvedPayRequest,
   setApprovedPayRequest,
   loading,
   setLoading,
-}: PurchaseListProps) => {
+}: RequestListProps) => {
   const [user] = useAtom(userAtom);
   const userId = user?.userId;
 
@@ -27,13 +27,10 @@ const PurchaseList = ({
     if (!userId) return;
     try {
       setLoading(true);
-      const updatedPurchase: Purchase = await updatePurchases(
-        requestId,
-        userId
-      );
+      const updatedPayment: Payment = await updatePayment(requestId, userId);
       setApprovedPayRequest((prev) =>
         prev.map((p) =>
-          p.requestId === updatedPurchase.requestId ? updatedPurchase : p
+          p.requestId === updatedPayment.requestId ? updatedPayment : p
         )
       );
     } catch (e) {
@@ -46,9 +43,9 @@ const PurchaseList = ({
   useEffect(() => {
     const load = async () => {
       try {
-        const purchases = await fetchAllPurchases();
+        const payments = await fetchAllPaymentRequestss();
         setLoading(false);
-        setApprovedPayRequest(purchases);
+        setApprovedPayRequest(payments);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -91,11 +88,11 @@ const PurchaseList = ({
             {approvedPayRequest.map((item) => (
               <tr key={item.requestId}>
                 <td className="px-4 py-2 text-sm text-gray-800">
-                  {item.purchaseItem}
+                  {item.paymentTitle}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
-                  {typeof item.itemCost === "number"
-                    ? `${item.itemCost} 円`
+                  {typeof item.paymentCost === "number"
+                    ? `${item.paymentCost} 円`
                     : "不明"}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
@@ -124,4 +121,4 @@ const PurchaseList = ({
   );
 };
 
-export default PurchaseList;
+export default RequestList;

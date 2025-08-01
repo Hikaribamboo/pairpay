@@ -42,7 +42,7 @@ export const openApiDocument = {
         },
       },
     },
-    "/api/purchases": {
+    "/api/payment": {
       get: {
         summary: "すべての購入リクエストを取得",
         responses: {
@@ -52,7 +52,7 @@ export const openApiDocument = {
               "application/json": {
                 schema: {
                   type: "array",
-                  items: { $ref: "#/components/schemas/Purchase" },
+                  items: { $ref: "#/components/schemas/Payment" },
                 },
               },
             },
@@ -60,7 +60,7 @@ export const openApiDocument = {
         },
       },
     },
-    "/api/requests/purchase": {
+    "/api/requests/payment": {
       post: {
         summary: "新しい購入リクエストを作成",
         requestBody: {
@@ -68,7 +68,7 @@ export const openApiDocument = {
           content: {
             "application/json": {
               schema: {
-                $ref: "#/components/schemas/RequestPurchase",
+                $ref: "#/components/schemas/RequestPayment",
               },
             },
           },
@@ -80,7 +80,7 @@ export const openApiDocument = {
         },
       },
     },
-    "/api/purchases/{requestId}": {
+    "/api/payment/{requestId}": {
       get: {
         summary: "特定の購入リクエストを取得",
         parameters: [
@@ -96,7 +96,7 @@ export const openApiDocument = {
             description: "リクエスト詳細",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Purchase" },
+                schema: { $ref: "#/components/schemas/Payment" },
               },
             },
           },
@@ -133,7 +133,7 @@ export const openApiDocument = {
             description: "承認されたリクエスト",
             content: {
               "application/json": {
-                schema: { $ref: "#/components/schemas/Purchase" },
+                schema: { $ref: "#/components/schemas/Payment" },
               },
             },
           },
@@ -145,14 +145,14 @@ export const openApiDocument = {
   },
   components: {
     schemas: {
-      Purchase: {
+      Payment: {
         type: "object",
         required: [
           "id",
           "userId",
           "userName",
-          "purchaseItem",
-          "itemCost",
+          "paymentTitle",
+          "paymentCost",
           "createdAt",
           "isApproved",
         ],
@@ -160,24 +160,24 @@ export const openApiDocument = {
           id: { type: "string" },
           userId: { type: "string" },
           userName: { type: "string" },
-          purchaseItem: { type: "string" },
-          itemCost: { type: "string" },
+          paymentTitle: { type: "string" },
+          paymentCost: { type: "string" },
           itemLink: { type: "string" },
-          itemMemo: { type: "string" },
+          paymentMemo: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
           isApproved: { type: "boolean" },
         },
       },
-      RequestPurchase: {
+      RequestPayment: {
         type: "object",
-        required: ["userId", "userName", "purchaseItem", "itemCost"],
+        required: ["userId", "userName", "paymentTitle", "paymentCost"],
         properties: {
           userId: { type: "string" },
           userName: { type: "string" },
-          purchaseItem: { type: "string" },
-          itemCost: { type: "string" },
+          paymentTitle: { type: "string" },
+          paymentCost: { type: "string" },
           itemLink: { type: "string" },
-          itemMemo: { type: "string" },
+          paymentMemo: { type: "string" },
         },
       },
     },

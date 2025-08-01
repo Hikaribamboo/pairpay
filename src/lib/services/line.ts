@@ -1,7 +1,6 @@
-// src/lib/services/line.ts
-import "server-only"; // ← クライアントからの誤 import を防ぐ
+import "server-only";
 import * as line from "@line/bot-sdk";
-import { Purchase } from "@/types/purchase";
+import { Payment } from "@/types/request/payment";
 
 const client = new line.Client({
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
@@ -11,12 +10,12 @@ const client = new line.Client({
 type LineTarget = { groupId: string };
 
 export async function sendApprovalNotification(
-  purchase: Purchase,
+  payment: Payment,
   target: LineTarget
 ) {
   const message = {
     type: "text" as const,
-    text: `「${purchase.purchaseItem}」が承認されました！`,
+    text: `「${payment.paymentTitle}」が承認されました！`,
   };
 
   try {

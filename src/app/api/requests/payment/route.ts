@@ -8,17 +8,17 @@ const lineClient = new Client({
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, userName, purchaseItem, itemCost, itemLink, itemMemo } =
+    const { userId, userName, paymentTitle, paymentCost, itemLink, paymentMemo } =
       await req.json();
 
     // Firestore
-    const docRef = await adminDb.collection("purchaseRequests").add({
+    const docRef = await adminDb.collection("paymentRequests").add({
       userId,
       userName,
-      purchaseItem,
-      itemCost,
+      paymentTitle,
+      paymentCost,
       itemLink,
-      itemMemo,
+      paymentMemo,
       createdAt: new Date(),
       isApproved: false,
     });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       },
       {
         type: "text",
-        text: `🗒️ ${purchaseItem}  ${itemCost}円`,
+        text: `🗒️ ${paymentTitle}  ${paymentCost}円`,
         wrap: true,
         color: "#ff5100",
         size: "sm",
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
                 data:
                   `action=agree` +
                   `&id=${requestId}` +
-                  `&purchaseItem=${encodeURIComponent(purchaseItem)}`,
+                  `&paymentTitle=${encodeURIComponent(paymentTitle)}`,
               },
             },
           ],

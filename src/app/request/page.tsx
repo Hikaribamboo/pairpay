@@ -1,25 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import PurchaseList from "./components/PurchaseList";
-import PurchaseRequestForm from "./components/forms/PurchaseRequestForm"; // 仮にこれだけ先
+import RequestList from "./components/RequestList";
+import PaymentRequestForm from "./components/forms/PaymentRequestForm"; // 仮にこれだけ先
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
-import type { Purchase } from "@/types/purchase";
-import { fetchAllPurchases } from "@/lib/api/request/purchase";
+import type { Payment } from "@/types/request/payment";
+import { fetchAllPaymentRequestss } from "@/lib/api/request/papyment";
 import DepositRequestForm from "./components/forms/DepositRequestForm";
 import SavingRequestForm from "./components/forms/SavingRequest";
 
 const RequestPage = () => {
-  const [approvedPayRequest, setApprovedPayRequest] = useState<Purchase[]>([]);
+  const [approvedPayRequest, setApprovedPayRequest] = useState<Payment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [formType, setFormType] = useState<
-    "purchase" | "deposit" | "saving" | null
+    "payment" | "deposit" | "saving" | null
   >(null);
 
-  const openForm = (type: "purchase" | "deposit" | "saving") => {
+  const openForm = (type: "payment" | "deposit" | "saving") => {
     setFormType(type);
     setShowModal(true);
   };
@@ -33,8 +33,8 @@ const RequestPage = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const purchases = await fetchAllPurchases();
-        setApprovedPayRequest(purchases);
+        const payments = await fetchAllPaymentRequestss();
+        setApprovedPayRequest(payments);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -47,7 +47,7 @@ const RequestPage = () => {
 
   return (
     <div className="relative">
-      <PurchaseList
+      <RequestList
         approvedPayRequest={approvedPayRequest}
         setApprovedPayRequest={setApprovedPayRequest}
         loading={loading}
@@ -73,7 +73,7 @@ const RequestPage = () => {
                 </h2>
                 <div className="space-y-2">
                   <button
-                    onClick={() => openForm("purchase")}
+                    onClick={() => openForm("payment")}
                     className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg"
                   >
                     購入リクエスト
@@ -105,11 +105,11 @@ const RequestPage = () => {
                   className="text-3xl text-gray-400 float-right"
                 />
 
-                {formType === "purchase" && (
-                  <PurchaseRequestForm
+                {formType === "payment" && (
+                  <PaymentRequestForm
                     onCreated={async () => {
                       closeModal();
-                      const updated = await fetchAllPurchases();
+                      const updated = await fetchAllPaymentRequestss();
                       setApprovedPayRequest(updated);
                     }}
                   />

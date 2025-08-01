@@ -2,11 +2,11 @@ import React from "react";
 import { FiDelete } from "react-icons/fi";
 
 type Props = {
-  itemCost: string;
-  setItemCost: React.Dispatch<React.SetStateAction<string>>;
+  paymentCost: string;
+  setPaymentCost: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const EnterCost = ({ itemCost, setItemCost }: Props) => {
+const EnterCost = ({ paymentCost, setPaymentCost }: Props) => {
   const digits = [
     "1",
     "2",
@@ -22,7 +22,7 @@ const EnterCost = ({ itemCost, setItemCost }: Props) => {
     "00",
   ];
   const handleCostButton = (digit: string) => {
-    setItemCost((prev) => prev + digit);
+    setPaymentCost((prev) => prev + digit);
   };
 
   return (
@@ -32,12 +32,12 @@ const EnterCost = ({ itemCost, setItemCost }: Props) => {
         <label className="text-md font-medium text-gray-700">Cost</label>
         <div className="relative border-b border-gray-400 mb-2 block">
           <input
-            value={itemCost}
-            onChange={(e) => setItemCost(e.target.value)}
+            value={paymentCost}
+            onChange={(e) => setPaymentCost(e.target.value)}
             className="w-full text-xl ml-4"
           />
           <FiDelete
-            onClick={() => setItemCost((prev) => prev.slice(0, -1))}
+            onClick={() => setPaymentCost((prev) => prev.slice(0, -1))}
             className="size-7 absolute right-3 bottom-2 text-gray-500"
           />
         </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as line from "@line/bot-sdk";
-import { Purchase } from "@/types/purchase";
+import { Payment } from "@/types/request/payment";
 import { sendApprovalNotification } from "@/lib/services/line";
 
 const config = {
@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("x-line-signature") || "";
 
-  // 署名チェック。失敗しても 200 を返す
   if (!line.validateSignature(body, config.channelSecret, signature)) {
     console.error("Invalid signature");
     return NextResponse.json({ ok: false }, { status: 200 });
@@ -27,13 +26,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 200 });
   }
 
-  // イベントごとに順に処理
   for (const event of events) {
     if (event.type !== "postback") continue;
 
     const data = new URLSearchParams(event.postback.data);
     const requestId = data.get("id");
-    const purchaseItem = data.get("purchaseItem");
+    const paymentTitle = data.get("paymentTitle");
     const groupId: string = process.env.LINE_GROUP_ID!;
 
     if (!requestId) continue;
@@ -43,9 +41,8 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
-    // 1) 内部 PATCH API 呼び出し
     const patchRes = await fetch(
-      `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/purchases/${requestId}`, // 相対パスを推奨
+      `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/payment/${requestId}`, // 相対パスを推奨
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -64,30 +61,27 @@ export async function POST(req: NextRequest) {
     if (patchRes.status === 409) {
       await client.pushMessage(groupId, {
         type: "text",
-        text: `「${purchaseItem}」はすでに承認されています`,
+        text: `「${paymentTitle}」はすでに承認されています`,
       });
       continue;
     }
 
     if (!patchRes.ok) {
       console.error(`PATCH failed for ${requestId}`, await patchRes.text());
-      continue; // 次のイベントへ
+      continue;
     }
 
-    // 2) 更新後 Purchase オブジェクトの取得
-    const updatedPurchase: Purchase = await patchRes.json();
-    await sendApprovalNotification(updatedPurchase, { groupId });
-    await sendApprovalNotification(updatedPurchase, { groupId });
-    // 3) LINE への通知を await する
+    const updatedPayment: Payment = await patchRes.json();
+    await sendApprovalNotification(updatedPayment, { groupId });
+    await sendApprovalNotification(updatedPayment, { groupId });
     try {
-      await sendApprovalNotification(updatedPurchase, {
+      await sendApprovalNotification(updatedPayment, {
         groupId,
       });
     } catch (e) {
-      console.error("Failed to send LINE notification", e, updatedPurchase);
+      console.error("Failed to send LINE notification", e, updatedPayment);
     }
   }
 
-  // 最後に必ず 200 OK を返す
   return NextResponse.json({ ok: true }, { status: 200 });
 }

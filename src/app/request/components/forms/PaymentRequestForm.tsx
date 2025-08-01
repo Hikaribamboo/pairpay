@@ -4,23 +4,23 @@ import { useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { FaRegPaste } from "react-icons/fa6";
-import { createPurchaseRequest } from "@/lib/api/request/purchase";
+import { createPaymentRequest } from "@/lib/api/request/papyment";
 import EnterCost from "./components/EnterCost";
 
-interface PurchaseRequestFormProps {
+interface PaymentRequestFormProps {
   onCreated: () => void;
 }
 
-const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
+const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
   onCreated,
 }) => {
   const [user] = useAtom(userAtom);
   const { userId } = user ?? {};
   const userName = user?.userName || "匿名ユーザー";
-  const [purchaseItem, setPurchaseItem] = useState("");
-  const [itemCost, setItemCost] = useState("");
+  const [paymentTitle, setPaymentTitle] = useState("");
+  const [paymentCost, setPaymentCost] = useState("");
   const [itemLink, setItemLink] = useState("");
-  const [itemMemo, setItemMemo] = useState("");
+  const [paymentMemo, setPaymentMemo] = useState("");
   const [status, setStatus] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -28,7 +28,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
     e.preventDefault();
     setStatus("送信中...");
 
-    if (!purchaseItem || !itemCost) {
+    if (!paymentTitle || !paymentCost) {
       setStatus("アイテム名、金額は必須です");
       return;
     } else if (!userId || !userName) {
@@ -36,21 +36,21 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
       return;
     }
     try {
-      await createPurchaseRequest({
+      await createPaymentRequest({
         userId,
         userName,
-        purchaseItem,
-        itemCost,
+        paymentTitle,
+        paymentCost,
         itemLink,
-        itemMemo,
+        paymentMemo,
       });
 
       // 通常のPOST処理などを入れる
       setStatus("送信＆保存成功！");
-      setPurchaseItem("");
-      setItemCost("");
+      setPaymentTitle("");
+      setPaymentCost("");
       setItemLink("");
-      setItemMemo("");
+      setPaymentMemo("");
       setSelectedCategory("");
 
       await onCreated();
@@ -88,8 +88,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
           </label>
           <input
             type="text"
-            value={purchaseItem}
-            onChange={(e) => setPurchaseItem(e.target.value)}
+            value={paymentTitle}
+            onChange={(e) => setPaymentTitle(e.target.value)}
             placeholder="購入アイテム名"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -117,7 +117,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
           </div>
         </div>
 
-        <EnterCost itemCost={itemCost} setItemCost={setItemCost} />
+        <EnterCost paymentCost={paymentCost} setPaymentCost={setPaymentCost} />
 
         {/* メモ */}
         <div>
@@ -126,8 +126,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
           </label>
           <input
             type="text"
-            value={itemMemo}
-            onChange={(e) => setItemMemo(e.target.value)}
+            value={paymentMemo}
+            onChange={(e) => setPaymentMemo(e.target.value)}
             placeholder="メモ（任意）"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -170,4 +170,4 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
   );
 };
 
-export default PurchaseRequestForm;
+export default PaymentRequestForm;

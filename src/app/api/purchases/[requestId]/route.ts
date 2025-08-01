@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-server";
-import { Purchase } from "@/types/purchase";
+import { Payment } from "@/types/request/payment";
 
 export async function GET(
-  req: NextRequest,
   context: { params: Promise<{ requestId: string }> }
 ) {
   const { requestId } = await context.params;
-  const doc = await adminDb.collection("purchaseRequests").doc(requestId).get();
+  const doc = await adminDb.collection("paymentRequests").doc(requestId).get();
   if (!doc.exists) return new NextResponse("Not found", { status: 404 });
   return NextResponse.json(doc.data());
 }
@@ -22,7 +21,7 @@ export async function PATCH(
     return new NextResponse("Bad Request", { status: 400 });
   }
 
-  const docRef = adminDb.collection("purchaseRequests").doc(requestId);
+  const docRef = adminDb.collection("paymentRequests").doc(requestId);
 
   const beforeSnap = await docRef.get();
 
@@ -50,10 +49,10 @@ export async function PATCH(
   });
 
   const afterSnap = await docRef.get();
-  const updatedPurchase = {
-    id: requestId,
+  const updatedPayment = {
+    requestId: requestId,
     ...afterSnap.data(),
-  } as Purchase;
+  } as Payment;
 
-  return NextResponse.json(updatedPurchase);
+  return NextResponse.json(updatedPayment);
 }

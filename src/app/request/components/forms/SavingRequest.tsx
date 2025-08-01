@@ -9,8 +9,8 @@ import EnterCost from "./components/EnterCost";
 const SavingRequestForm = () => {
   const [user] = useAtom(userAtom);
   const { userId } = user ?? {};
-  const [itemCost, setItemCost] = useState("");
-  const [itemMemo, setItemMemo] = useState("");
+  const [paymentCost, setPaymentCost] = useState("");
+  const [paymentMemo, setPaymentMemo] = useState("");
   const [status, setStatus] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
 
@@ -21,8 +21,8 @@ const SavingRequestForm = () => {
     try {
       // 通常のPOST処理などを入れる
       setStatus("送信＆保存成功！");
-      setItemCost("");
-      setItemMemo("");
+      setPaymentCost("");
+      setPaymentMemo("");
     } catch (err) {
       console.error(err);
       setStatus("送信または保存に失敗しました");
@@ -52,7 +52,7 @@ const SavingRequestForm = () => {
       </h1>
 
       <form onSubmit={handleFormSubmit} className="space-y-4">
-        <EnterCost itemCost={itemCost} setItemCost={setItemCost} />
+        <EnterCost paymentCost={paymentCost} setPaymentCost={setPaymentCost} />
         {/* メモ */}
         <div>
           <label className="text-md font-medium text-gray-700 mb-2 block">
@@ -60,8 +60,8 @@ const SavingRequestForm = () => {
           </label>
           <input
             type="text"
-            value={itemMemo}
-            onChange={(e) => setItemMemo(e.target.value)}
+            value={paymentMemo}
+            onChange={(e) => setPaymentMemo(e.target.value)}
             placeholder="メモ（任意）"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -89,7 +89,7 @@ const SavingRequestForm = () => {
           </div>
         </div>
         <CategoryAllocationSlide
-          totalAmount={Number(itemCost) || 0}
+          totalAmount={Number(paymentCost) || 0}
           selectedCategories={selectedCategory}
         />
         <button
