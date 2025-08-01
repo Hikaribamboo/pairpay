@@ -5,10 +5,12 @@ import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { FaRegPaste } from "react-icons/fa6";
 import { FiDelete } from "react-icons/fi";
+import { createPurchaseRequest } from "@/lib/api/request/purchase";
 
 const PurchaseRequestForm = () => {
   const [user] = useAtom(userAtom);
   const { userId } = user ?? {};
+  const userName = user?.userName || "匿名ユーザー";
   const [purchaseItem, setPurchaseItem] = useState("");
   const [itemCost, setItemCost] = useState("");
   const [itemLink, setItemLink] = useState("");
@@ -20,7 +22,20 @@ const PurchaseRequestForm = () => {
     e.preventDefault();
     setStatus("送信中...");
 
+    if (!userId || !purchaseItem || !itemCost || !userName) {
+      setStatus("ユーザーID、アイテム名、金額は必須です");
+      return;
+    }
     try {
+      await createPurchaseRequest({
+        userId,
+        userName,
+        purchaseItem,
+        itemCost,
+        itemLink,
+        itemMemo,
+      });
+
       // 通常のPOST処理などを入れる
       setStatus("送信＆保存成功！");
       setPurchaseItem("");
@@ -136,12 +151,9 @@ const PurchaseRequestForm = () => {
           <label className="text-sm font-medium text-gray-700 mb-1 block">
             Category
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-4 ml-2">
             {categories.map((cat) => (
-              <label
-                key={cat}
-                className="flex items-center space-x-4 cursor-pointer"
-              >
+              <label key={cat} className="flex items-center space-x-2">
                 <input
                   type="radio"
                   name="category"

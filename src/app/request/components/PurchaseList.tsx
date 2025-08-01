@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { fetchAllPurchases } from "@/lib/api/purchase/all";
+import { fetchAllPurchases } from "@/lib/api/request/purchase";
 import type { Purchase } from "@/types/purchase";
-import { updatePurchases } from "@/lib/api/purchase/update";
+import { updatePurchases } from "@/lib/api/request/purchase";
 
 const PurchaseList = () => {
   const [user] = useAtom(userAtom);
@@ -84,7 +84,7 @@ const PurchaseList = () => {
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
                   {typeof item.itemCost === "number"
-                    ? `${item.itemCost.toLocaleString()} 円`
+                    ? `${item.itemCost} 円`
                     : "不明"}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">

@@ -3,7 +3,7 @@ export interface Purchase {
   userId: string;
   userName: string;
   purchaseItem: string;
-  itemCost: number;
+  itemCost: string;
   itemLink?: string;
   itemMemo?: string;
   createdAt: any;
@@ -14,7 +14,7 @@ export interface RequestPurchase {
   userId: string;
   userName: string;
   purchaseItem: string;
-  itemCost: number;
+  itemCost: string;
   itemLink?: string;
   itemMemo?: string;
 };

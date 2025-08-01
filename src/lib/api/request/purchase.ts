@@ -16,7 +16,7 @@ export const createPurchaseRequest = async ({
   itemLink,
   itemMemo,
 }: RequestPurchase) => {
-  const res = await fetch("/api/webhooks/purchase", {
+  const res = await fetch("/api/requests/purchase", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
