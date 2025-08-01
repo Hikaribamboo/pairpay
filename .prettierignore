@@ -1,0 +1,9 @@
+# Ignore artifacts:
+build
+coverage
+**/pnpm-lock.yaml
+**/tsconfig.json
+**/.vscode-test.mjs
+**/CHANGELOG.md
+**/vsc-extension-quickstart.md
+**/README.md
