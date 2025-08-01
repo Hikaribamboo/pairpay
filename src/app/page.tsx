@@ -1,13 +1,16 @@
 // app/page.tsx (Server Component)
 import AuthClient from "@/app/components/AuthClient";
 
-export default function Page({
+type ServerCpmponent = Record<string, string | string[] | undefined>;
+
+export default async function Page({
   searchParams,
 }: {
-  searchParams: { code?: string };
+  searchParams: Promise<ServerCpmponent>;
 }) {
-  const code =
-    typeof searchParams?.code === "string" ? searchParams.code : undefined;
+  const sp = await searchParams;
+  const raw = sp?.code;
+  const code = Array.isArray(raw) ? raw[0] : raw;
 
-  return <AuthClient code={code} />;
+  return <AuthClient code={typeof code === "string" ? code : undefined} />;
 }
