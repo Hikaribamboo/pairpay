@@ -4,9 +4,10 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 
 // Base64 形式の秘密鍵を復号
-const privateKey = Buffer
-  .from(process.env.FIREBASE_PRIVATE_KEY_B64!, "base64")
-  .toString("utf8");
+const privateKey = Buffer.from(
+  process.env.FIREBASE_PRIVATE_KEY_B64!,
+  "base64"
+).toString("utf8");
 
 // サービスアカウント情報
 const serviceAccount = {

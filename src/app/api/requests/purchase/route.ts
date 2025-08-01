@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       userId,
       userName,
       purchaseItem,
-      itemCost, 
+      itemCost,
       itemLink,
       itemMemo,
       createdAt: new Date(),

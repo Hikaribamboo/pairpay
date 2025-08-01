@@ -1,5 +1,9 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, browserSessionPersistence, setPersistence } from "firebase/auth";
+import {
+  getAuth,
+  browserSessionPersistence,
+  setPersistence,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // .env に保存されたキーを使用

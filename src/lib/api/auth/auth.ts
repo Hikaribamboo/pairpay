@@ -8,9 +8,12 @@ export async function fetchLineLogin(code: string, redirectUri: string) {
     `/api/callback?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}`
   );
   if (!res.ok) throw new Error("LINEログイン失敗");
-  return res.json() as Promise<{ userId: string; userName: string; customToken: string }>;
+  return res.json() as Promise<{
+    userId: string;
+    userName: string;
+    customToken: string;
+  }>;
 }
-
 
 // 2) 受け取った customToken で Firebase にログインし、sessionStorage に保存
 export async function signInAndCache(

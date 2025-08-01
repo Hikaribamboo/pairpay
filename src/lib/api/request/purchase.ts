@@ -46,5 +46,3 @@ export const updatePurchases = async (requestId: string, userId: string) => {
   );
   return updatedRequest.json();
 };
-
-

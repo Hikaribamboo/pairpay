@@ -8,7 +8,7 @@ export interface Purchase {
   itemMemo?: string;
   createdAt: any;
   isApproved: boolean;
-};
+}
 
 export interface RequestPurchase {
   userId: string;
@@ -17,4 +17,4 @@ export interface RequestPurchase {
   itemCost: string;
   itemLink?: string;
   itemMemo?: string;
-};
+}

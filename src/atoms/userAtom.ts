@@ -3,4 +3,8 @@ import { User } from "@/types/user";
 
 const storage = createJSONStorage<User | undefined>(() => sessionStorage);
 
-export const userAtom = atomWithStorage<User | undefined>("user", undefined, storage);
+export const userAtom = atomWithStorage<User | undefined>(
+  "user",
+  undefined,
+  storage
+);

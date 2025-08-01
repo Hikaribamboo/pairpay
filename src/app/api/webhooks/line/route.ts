@@ -77,11 +77,11 @@ export async function POST(req: NextRequest) {
     // 2) 更新後 Purchase オブジェクトの取得
     const updatedPurchase: Purchase = await patchRes.json();
     await sendApprovalNotification(updatedPurchase, { groupId });
-    await sendApprovalNotification(updatedPurchase,{ groupId});
+    await sendApprovalNotification(updatedPurchase, { groupId });
     // 3) LINE への通知を await する
     try {
       await sendApprovalNotification(updatedPurchase, {
-        groupId
+        groupId,
       });
     } catch (e) {
       console.error("Failed to send LINE notification", e, updatedPurchase);

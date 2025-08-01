@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: redirectUri,  // ← フロントと完璧に一致
+      redirect_uri: redirectUri, // ← フロントと完璧に一致
       client_id: process.env.NEXT_PUBLIC_LINE_CLIENT_ID!,
       client_secret: process.env.LINE_CLIENT_SECRET!,
     }),
