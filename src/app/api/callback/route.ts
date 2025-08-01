@@ -33,7 +33,6 @@ export async function GET(req: NextRequest) {
   const profile = await profileRes.json();
 
   // 3) Firestore に保存（merge: true）
-  console.log("Saving user profile to Firestore:", profile);
   await adminDb
     .collection("users")
     .doc(profile.userId)
