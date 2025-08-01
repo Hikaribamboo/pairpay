@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { FiDelete } from "react-icons/fi";
 import CategoryAllocationSlide from "./components/CategoryAllocationSlider";
+import EnterCost from "./components/EnterCost";
 
 const SavingRequestForm = () => {
   const [user] = useAtom(userAtom);
@@ -29,10 +29,6 @@ const SavingRequestForm = () => {
     }
   };
 
-  const handleCostButton = (digit: string) => {
-    setItemCost((prev) => prev + digit);
-  };
-
   const toggleOption = (value: string) => {
     setSelectedCategory((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
@@ -41,7 +37,20 @@ const SavingRequestForm = () => {
 
   if (!userId) return null;
 
-  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+  const digits = [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "000",
+    "6",
+    "7",
+    "8",
+    "9",
+    "0",
+    "00",
+  ];
   const categories = [
     { value: "wedding", label: "結婚式" },
     { value: "travel", label: "家族旅行" },
@@ -57,37 +66,12 @@ const SavingRequestForm = () => {
       </h1>
 
       <form onSubmit={handleFormSubmit} className="space-y-4">
-        {/* 金額入力 */}
-        <div>
-          <label className="text-md font-medium text-gray-700">Cost</label>
-          <div className="relative border-b border-gray-400">
-            <input
-              type="number"
-              value={itemCost}
-              onChange={(e) => setItemCost(e.target.value)}
-              className="w-full text-xl ml-4"
-            />
-            <FiDelete
-              onClick={() => setItemCost((prev) => prev.slice(0, -1))}
-              className="size-7 absolute right-3 bottom-2 text-gray-500"
-            />
-          </div>
-          <div className="grid grid-cols-5 gap-2 mt-2">
-            {digits.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => handleCostButton(d)}
-                className="py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-center font-medium"
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
+        <EnterCost itemCost={itemCost} setItemCost={setItemCost} />
         {/* メモ */}
         <div>
-          <label className="text-md font-medium text-gray-700">Memo</label>
+          <label className="text-md font-medium text-gray-700 mb-2 block">
+            Memo
+          </label>
           <input
             type="text"
             value={itemMemo}
@@ -98,12 +82,15 @@ const SavingRequestForm = () => {
         </div>
         {/* カテゴリ選択（ラジオ） */}
         <div>
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
+          <label className="text-md font-medium text-gray-700 mb-2 block">
             Category
           </label>
-          <div className="flex flex-wrap gap-4 ml-2">
+          <div className="flex flex-wrap ml-2">
             {categories.map((opt) => (
-              <label key={opt.value} className="flex items-center gap-2">
+              <label
+                key={opt.value}
+                className="flex items-center gap-1 mx-2 my-1"
+              >
                 <input
                   type="checkbox"
                   value={opt.value}

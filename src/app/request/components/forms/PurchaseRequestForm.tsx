@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { FaRegPaste } from "react-icons/fa6";
-import { FiDelete } from "react-icons/fi";
 import { createPurchaseRequest } from "@/lib/api/request/purchase";
+import EnterCost from "./components/EnterCost";
 
 const PurchaseRequestForm = () => {
   const [user] = useAtom(userAtom);
@@ -48,10 +48,6 @@ const PurchaseRequestForm = () => {
     }
   };
 
-  const handleCostButton = (digit: string) => {
-    setItemCost((prev) => prev + digit);
-  };
-
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
@@ -63,7 +59,6 @@ const PurchaseRequestForm = () => {
 
   if (!userId) return null;
 
-  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
   const categories = ["ご飯", "交通費", "宿泊費", "デート"];
 
   return (
@@ -75,7 +70,9 @@ const PurchaseRequestForm = () => {
       <form onSubmit={handleFormSubmit} className="space-y-2">
         {/* アイテム名とリンク */}
         <div>
-          <label className="text-md font-medium text-gray-700">Item</label>
+          <label className="text-md font-medium text-gray-700 mb-2 block">
+            Item
+          </label>
           <input
             type="text"
             value={purchaseItem}
@@ -86,7 +83,9 @@ const PurchaseRequestForm = () => {
         </div>
 
         <div className="flex flex-col flex-1">
-          <label className="text-md font-medium text-gray-700 mb-1">Link</label>
+          <label className="text-md font-medium text-gray-700 mb-2 block">
+            Link
+          </label>
           <div className="relative">
             <input
               type="url"
@@ -105,38 +104,13 @@ const PurchaseRequestForm = () => {
           </div>
         </div>
 
-        {/* 金額入力 */}
-        <div>
-          <label className="text-md font-medium text-gray-700">Cost</label>
-          <div className="relative">
-            <input
-              type="number"
-              value={itemCost}
-              onChange={(e) => setItemCost(e.target.value)}
-              className="w-full text-xl border-b border-gray-400"
-            />
-            <FiDelete
-              onClick={() => setItemCost((prev) => prev.slice(0, -1))}
-              className="size-7 absolute right-3 bottom-2 text-gray-500"
-            />
-          </div>
-          <div className="grid grid-cols-5 gap-2 mt-2">
-            {digits.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => handleCostButton(d)}
-                className="py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-center font-medium"
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
+        <EnterCost itemCost={itemCost} setItemCost={setItemCost} />
 
         {/* メモ */}
         <div>
-          <label className="text-md font-medium text-gray-700">Memo</label>
+          <label className="text-md font-medium text-gray-700 mb-2 block">
+            Memo
+          </label>
           <input
             type="text"
             value={itemMemo}
@@ -148,12 +122,12 @@ const PurchaseRequestForm = () => {
 
         {/* カテゴリ選択（ラジオ） */}
         <div>
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
+          <label className="text-md font-medium text-gray-700 mb-2 block">
             Category
           </label>
-          <div className="flex flex-wrap gap-4 ml-2">
+          <div className="flex justify-center gap-4">
             {categories.map((cat) => (
-              <label key={cat} className="flex items-center space-x-2">
+              <label key={cat} className="flex items-center space-x-1">
                 <input
                   type="radio"
                   name="category"
