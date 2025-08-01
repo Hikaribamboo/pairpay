@@ -91,9 +91,7 @@ const RequestList = ({
                   {item.paymentTitle}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
-                  {typeof item.paymentCost === "number"
-                    ? `${item.paymentCost} 円`
-                    : "不明"}
+                  {item.paymentCost} 円
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-800">
                   {item.userName}
