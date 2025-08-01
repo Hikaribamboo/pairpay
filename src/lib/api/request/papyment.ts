@@ -1,7 +1,7 @@
 import { RequestPayment } from "@/types/request/payment";
 
-export const fetchAllPaymentRequestss = async () => {
-  const res = await fetch("/api/payment");
+export const fetchAllPaymentRequest = async () => {
+  const res = await fetch("/api/request/payment");
   if (!res.ok) {
     throw new Error("Failed to fetch payment");
   }
@@ -37,7 +37,7 @@ export const createPaymentRequest = async ({
 
 export const updatePayment = async (requestId: string, userId: string) => {
   const updatedRequest = await fetch(
-    `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/payment/${requestId}`,
+    `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/request/payment/${requestId}`,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { fetchAllPaymentRequestss } from "@/lib/api/request/papyment";
+import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
 import type { Payment } from "@/types/request/payment";
 import { updatePayment } from "@/lib/api/request/papyment";
 
@@ -43,7 +43,7 @@ const RequestList = ({
   useEffect(() => {
     const load = async () => {
       try {
-        const payments = await fetchAllPaymentRequestss();
+        const payments = await fetchAllPaymentRequest();
         setLoading(false);
         setApprovedPayRequest(payments);
       } catch (e) {

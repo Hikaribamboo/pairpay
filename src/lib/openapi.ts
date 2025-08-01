@@ -42,7 +42,7 @@ export const openApiDocument = {
         },
       },
     },
-    "/api/payment": {
+    "/api/request/payment": {
       get: {
         summary: "すべての購入リクエストを取得",
         responses: {
@@ -80,7 +80,7 @@ export const openApiDocument = {
         },
       },
     },
-    "/api/payment/{requestId}": {
+    "/api/request/payment/{requestId}": {
       get: {
         summary: "特定の購入リクエストを取得",
         parameters: [

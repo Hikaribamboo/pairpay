@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const patchRes = await fetch(
-      `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/payment/${requestId}`, // 相対パスを推奨
+      `${process.env.NEXT_PUBLIC_REDIRECT_BASE_URL}/api/request/payment/${requestId}`, // 相対パスを推奨
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

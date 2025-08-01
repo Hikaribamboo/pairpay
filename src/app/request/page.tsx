@@ -6,7 +6,7 @@ import PaymentRequestForm from "./components/forms/PaymentRequestForm"; // 仮�
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
 import type { Payment } from "@/types/request/payment";
-import { fetchAllPaymentRequestss } from "@/lib/api/request/papyment";
+import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
 import DepositRequestForm from "./components/forms/DepositRequestForm";
 import SavingRequestForm from "./components/forms/SavingRequest";
 
@@ -33,7 +33,7 @@ const RequestPage = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const payments = await fetchAllPaymentRequestss();
+        const payments = await fetchAllPaymentRequest();
         setApprovedPayRequest(payments);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
@@ -109,7 +109,7 @@ const RequestPage = () => {
                   <PaymentRequestForm
                     onCreated={async () => {
                       closeModal();
-                      const updated = await fetchAllPaymentRequestss();
+                      const updated = await fetchAllPaymentRequest();
                       setApprovedPayRequest(updated);
                     }}
                   />
