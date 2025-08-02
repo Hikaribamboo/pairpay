@@ -14,7 +14,7 @@ export default function Header() {
         <Image
           src="/logo.png" // public/logo.png を想定
           alt="ペアPay ロゴ"
-          width={56}
+          width={36}
           height={56}
           priority // 初回表示で優先的に読み込む（ロゴなら有効）
         />

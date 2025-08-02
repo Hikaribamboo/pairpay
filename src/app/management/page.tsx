@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pie } from "react-chartjs-2";
+import { PieChart } from "@mui/x-charts/PieChart";
 import "chart.js/auto";
 import { fetchPaymentByPeriod } from "@/lib/api/request/papyment";
 import type { Payment } from "@/types/request/payment";
@@ -20,9 +20,8 @@ export default function MobileDashboard() {
   const [payTotal, setPayTotal] = useState(0);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("今月");
-  const [payRequests, setPayRequests] = useState<Payment[]>([]);
+  const [termPayRequests, setTermPayRequests] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const approvedOnly = payRequests.filter((p) => p.isApproved);
 
   useEffect(() => {
     async function fetchData() {
@@ -59,6 +58,7 @@ export default function MobileDashboard() {
         setPayTotal(
           data.reduce((sum: number, p: any) => sum + parseInt(p.paymentCost), 0)
         );
+        setTermPayRequests(data);
       } catch (e) {
         console.error("取得失敗:", e);
       }
@@ -67,36 +67,23 @@ export default function MobileDashboard() {
     fetchData();
   }, [selectedPeriod]);
 
-  // 🧠 カテゴリ別に合計金額を集計
   const categoryTotals: Record<string, number> = {};
   for (const e of expenses) {
     categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.cost;
   }
 
-  const chartData = {
-    labels: Object.keys(categoryTotals),
-    datasets: [
-      {
-        data: Object.values(categoryTotals),
-        backgroundColor: [
-          "#60A5FA",
-          "#F472B6",
-          "#FBBF24",
-          "#34D399",
-          "#A78BFA",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+  const muiChartData = Object.entries(categoryTotals).map(
+    ([category, value], index) => ({
+      id: index,
+      value,
+      label: category,
+    })
+  );
 
   return (
-    <div className="max-w-sm mx-auto p-4 flex flex-col gap-6 bg-white min-h-screen">
-      {/* ヘッダー */}
-      <header className="text-lg font-bold text-center">ヘッダー</header>
-
+    <div className="flex flex-col">
       {/* 今月のPay */}
-      <div className="bg-gray-100 p-4 rounded flex items-center justify-between">
+      <div className="bg-gray-100 p-4 m-6 rounded flex items-center justify-between">
         <div>
           <div className="text-sm text-gray-600">今月のPay</div>
           <div className="text-2xl font-semibold text-blue-600">
@@ -108,17 +95,9 @@ export default function MobileDashboard() {
         </button>
       </div>
 
-      {/* 一覧 */}
-      <ApprovedRequestList
-        approvedPayRequest={approvedOnly}
-        setPayRequests={setPayRequests}
-        loading={loading}
-        setLoading={setLoading}
-      />
-
       {/* 円グラフ */}
-      <section className="mt-auto">
-        <div className="flex justify-between items-center mb-2">
+      <section className="flex flex-col items-center justify-center mt-4">
+        <div className="flex justify-between items-center mb-2 gap-8">
           <h2 className="font-semibold text-gray-700">カテゴリ別支出</h2>
           <div className="flex gap-1 text-sm">
             {periodOptions.map((period) => (
@@ -136,10 +115,27 @@ export default function MobileDashboard() {
             ))}
           </div>
         </div>
-        <div className="w-48 h-48 mx-auto">
-          <Pie data={chartData} />
+        <div className="w-72 h-48 mt-4 gap-2">
+          <PieChart
+            series={[
+              {
+                data: muiChartData,
+                paddingAngle: 0,
+                outerRadius: 100, // ← ✨ここが重要
+              },
+            ]}
+            width={200}
+            height={200}
+          />
         </div>
       </section>
+      {/* 一覧 */}
+      <ApprovedRequestList
+        approvedPayRequest={termPayRequests}
+        setPayRequests={setTermPayRequests}
+        loading={loading}
+        setLoading={setLoading}
+      />
     </div>
   );
 }

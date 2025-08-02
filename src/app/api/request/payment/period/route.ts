@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
   const snapshot = await adminDb
     .collection("paymentRequests")
     .where("createdAt", ">=", Timestamp.fromDate(fromDate))
-    .where("createdAt", "<=", Timestamp.fromDate(toDate))
+    .where("createdAt", "<", Timestamp.fromDate(toDate))
+    .where("isApproved", "==", true)
     .get();
 
   const data = snapshot.docs.map((doc) => ({
