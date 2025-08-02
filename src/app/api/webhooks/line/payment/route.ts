@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-server";
 import { Client } from "@line/bot-sdk";
-import { Payment } from "@/types/request/payment";
-
+import { RequestPayment } from "@/types/request/payment";
 
 const lineClient = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
@@ -10,8 +9,15 @@ const lineClient = new Client({
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, userName, paymentTitle, paymentCost, itemLink, paymentMemo, category }: Payment =
-      await req.json();
+    const {
+      userId,
+      userName,
+      paymentTitle,
+      paymentCost,
+      itemLink,
+      paymentMemo,
+      category,
+    }: RequestPayment = await req.json();
 
     // Firestore
     const docRef = await adminDb.collection("paymentRequests").add({

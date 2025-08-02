@@ -157,47 +157,51 @@
     }
   },
   "components": {
-    "schemas": {
-      "RequestPayment": {
-        "type": "object",
-        "required": ["userId", "userName", "paymentTitle", "paymentCost"],
-        "properties": {
-          "userId": { "type": "string" },
-          "userName": { "type": "string" },
-          "paymentTitle": { "type": "string" },
-          "paymentCost": { "type": "string" },
-          "itemLink": { "type": "string" },
-          "paymentMemo": { "type": "string" },
-          "category": { "type": "string" }
-        }
-      },
-      "Payment": {
-        "type": "object",
-        "required": [
-          "id",
-          "userId",
-          "userName",
-          "paymentTitle",
-          "paymentCost",
-          "createdAt",
-          "isApproved"
-        ],
-        "properties": {
-          "id": { "type": "string" },
-          "userId": { "type": "string" },
-          "userName": { "type": "string" },
-          "paymentTitle": { "type": "string" },
-          "paymentCost": { "type": "string" },
-          "itemLink": { "type": "string" },
-          "paymentMemo": { "type": "string" },
-          "category": { "type": "string" },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isApproved": { "type": "boolean" }
-        }
+  "schemas": {
+    "RequestPayment": {
+      "type": "object",
+      "required": ["userId", "userName", "paymentTitle", "paymentCost"],
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "paymentTitle": { "type": "string" },
+        "paymentCost": { "type": "number" },
+        "itemLink": { "type": "string" },
+        "paymentMemo": { "type": "string" },
+        "category": { "type": "string" }
+      }
+    },
+    "Payment": {
+      "type": "object",
+      "required": [
+        "requestId",
+        "userId",
+        "userName",
+        "paymentTitle",
+        "paymentCost",
+        "createdAt"
+      ],
+      "properties": {
+        "requestId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "paymentTitle": { "type": "string" },
+        "paymentCost": { "type": "number" },
+        "itemLink": { "type": "string" },
+        "paymentMemo": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isApproved": { "type": "boolean" }
       }
     }
   }
+}
+
 }

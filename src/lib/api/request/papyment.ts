@@ -8,6 +8,16 @@ export const fetchAllPaymentRequest = async () => {
   return res.json();
 };
 
+export const fetchPaymentByPeriod = async (from: string, to: string) => {
+  const url = new URL("/api/request/payment/period", window.location.origin);
+  url.searchParams.set("from", from);
+  url.searchParams.set("to", to);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error("支払いリクエストの取得に失敗しました");
+  return res.json();
+};
+
 export const createPaymentRequest = async ({
   userId,
   userName,
@@ -15,7 +25,7 @@ export const createPaymentRequest = async ({
   paymentCost,
   itemLink,
   paymentMemo,
-  category
+  category,
 }: RequestPayment) => {
   const res = await fetch("/api/webhooks/line/payment", {
     method: "POST",
@@ -27,7 +37,7 @@ export const createPaymentRequest = async ({
       paymentCost,
       itemLink,
       paymentMemo,
-      category
+      category,
     }),
   });
   if (!res.ok) {

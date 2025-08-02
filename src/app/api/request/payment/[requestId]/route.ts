@@ -36,7 +36,7 @@ export async function PATCH(
 
   await docRef.update({
     isApproved,
-    respondedAt: new Date(),
+    approvedAt: new Date(),
   });
 
   const afterSnap = await docRef.get();
