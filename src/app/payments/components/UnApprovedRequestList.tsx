@@ -17,7 +17,6 @@ interface RequestListProps {
 const UnApprovedRequestList = ({
   approvedPayRequest,
   setPayRequests,
-  loading,
   setLoading,
 }: RequestListProps) => {
   const [user] = useAtom(userAtom);
@@ -53,9 +52,6 @@ const UnApprovedRequestList = ({
     };
     load();
   }, [setPayRequests, setLoading]);
-
-  if (loading)
-    return <p className="text-center text-gray-500 mt-4">読み込み中...</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
