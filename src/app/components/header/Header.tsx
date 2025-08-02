@@ -25,6 +25,7 @@ export default function Header() {
         <Link href="/payments">Payリクエスト一覧</Link>
         <Link href="/management">管理</Link>
         <Link href="/saving">貯金</Link>
+        <Link href="/common-rules">仲良しルール</Link>
       </nav>
 
       {/* ハンバーガー */}
@@ -72,6 +73,13 @@ export default function Header() {
           </Link>
           <Link href="/saving" onClick={() => setOpen(false)} className="block">
             貯金
+          </Link>
+          <Link
+            href="/common-rules"
+            onClick={() => setOpen(false)}
+            className="block"
+          >
+            仲良しルール
           </Link>
         </div>
       </div>
