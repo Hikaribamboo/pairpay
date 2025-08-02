@@ -9,7 +9,7 @@ import EnterCost from "@/app/components/forms/components/EnterCost";
 const SavingRequestForm = () => {
   const [user] = useAtom(userAtom);
   const { userId } = user ?? {};
-  const [paymentCost, setPaymentCost] = useState("");
+  const [paymentCost, setPaymentCost] = useState(0);
   const [paymentMemo, setPaymentMemo] = useState("");
   const [status, setStatus] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
@@ -21,7 +21,7 @@ const SavingRequestForm = () => {
     try {
       // 通常のPOST処理などを入れる
       setStatus("送信＆保存成功！");
-      setPaymentCost("");
+      setPaymentCost(0);
       setPaymentMemo("");
     } catch (err) {
       console.error(err);
