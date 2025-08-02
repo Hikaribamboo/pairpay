@@ -43,6 +43,7 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
         paymentCost,
         itemLink,
         paymentMemo,
+        category: selectedCategory,
       });
 
       // 通常のPOST処理などを入れる

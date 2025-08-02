@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import RequestList from "./components/RequestList";
-import PaymentRequestForm from "./components/forms/PaymentRequestForm"; // 仮にこれだけ先
+import ApprovedRequestList from "./components/request/ApprovedRequestList";
+import PaymentRequestForm from "./components/forms/PaymentRequestForm";
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
 import type { Payment } from "@/types/request/payment";
 import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
 import DepositRequestForm from "./components/forms/DepositRequestForm";
 import SavingRequestForm from "./components/forms/SavingRequest";
+import UnApprovedRequestList from "./components/request/UnApprovedRequestList";
 
 const RequestPage = () => {
-  const [approvedPayRequest, setApprovedPayRequest] = useState<Payment[]>([]);
+  const [payRequest, setPayRequest] = useState<Payment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +35,7 @@ const RequestPage = () => {
       setLoading(true);
       try {
         const payments = await fetchAllPaymentRequest();
-        setApprovedPayRequest(payments);
+        setPayRequest(payments);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -46,10 +47,16 @@ const RequestPage = () => {
   }, []);
 
   return (
-    <div className="relative">
-      <RequestList
-        approvedPayRequest={approvedPayRequest}
-        setApprovedPayRequest={setApprovedPayRequest}
+    <div className="relative mt-12">
+      <UnApprovedRequestList
+        approvedPayRequest={payRequest.filter((item) => !item.isApproved)}
+        setPayRequests={setPayRequest}
+        loading={loading}
+        setLoading={setLoading}
+      />
+      <ApprovedRequestList
+        approvedPayRequest={payRequest.filter((item) => item.isApproved)}
+        setPayRequests={setPayRequest}
         loading={loading}
         setLoading={setLoading}
       />
@@ -110,7 +117,7 @@ const RequestPage = () => {
                     onCreated={async () => {
                       closeModal();
                       const updated = await fetchAllPaymentRequest();
-                      setApprovedPayRequest(updated);
+                      setPayRequest(updated);
                     }}
                   />
                 )}

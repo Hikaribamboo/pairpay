@@ -9,14 +9,14 @@ import { updatePayment } from "@/lib/api/request/papyment";
 
 interface RequestListProps {
   approvedPayRequest: Payment[];
-  setApprovedPayRequest: React.Dispatch<React.SetStateAction<Payment[]>>;
+  setPayRequests: React.Dispatch<React.SetStateAction<Payment[]>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const RequestList = ({
+const ApprovedRequestList = ({
   approvedPayRequest,
-  setApprovedPayRequest,
+  setPayRequests,
   loading,
   setLoading,
 }: RequestListProps) => {
@@ -28,7 +28,7 @@ const RequestList = ({
     try {
       setLoading(true);
       const updatedPayment: Payment = await updatePayment(requestId, userId);
-      setApprovedPayRequest((prev) =>
+      setPayRequests((prev) =>
         prev.map((p) =>
           p.requestId === updatedPayment.requestId ? updatedPayment : p
         )
@@ -45,7 +45,7 @@ const RequestList = ({
       try {
         const payments = await fetchAllPaymentRequest();
         setLoading(false);
-        setApprovedPayRequest(payments);
+        setPayRequests(payments);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -63,7 +63,7 @@ const RequestList = ({
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-        リクエスト一覧
+        承認済みリクエスト一覧
       </h1>
 
       <div className="overflow-x-auto">
@@ -119,4 +119,4 @@ const RequestList = ({
   );
 };
 
-export default RequestList;
+export default ApprovedRequestList;
