@@ -44,7 +44,6 @@ const UnApprovedRequestList = ({
     const load = async () => {
       try {
         const payments = await fetchAllPaymentRequest();
-        setLoading(false);
         setPayRequests(payments);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
@@ -53,9 +52,7 @@ const UnApprovedRequestList = ({
       }
     };
     load();
-  }, []);
-
-  if (loading) return <p>読み込み中…</p>;
+  }, [setPayRequests, setLoading]);
 
   if (loading)
     return <p className="text-center text-gray-500 mt-4">読み込み中...</p>;
@@ -66,8 +63,8 @@ const UnApprovedRequestList = ({
         未認証リクエスト一覧
       </h1>
 
-      <div className="">
-        <table className="min-w-full text-left">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 text-left">
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-2 text-sm font-medium text-gray-600">
@@ -84,19 +81,19 @@ const UnApprovedRequestList = ({
               </th>
             </tr>
           </thead>
-          <tbody className="">
+          <tbody className="divide-y divide-gray-200">
             {approvedPayRequest.map((item) => (
               <tr key={item.requestId}>
-                <td className="max-w-28 px-2 py-2 text-sm text-gray-800">
+                <td className="max-w-28 px-4 py-2 text-sm text-gray-800">
                   {item.paymentTitle}
                 </td>
-                <td className="px-2 py-2 text-sm text-gray-800">
+                <td className="px-4 py-2 text-sm text-gray-800">
                   {item.paymentCost} 円
                 </td>
-                <td className="px-2 py-2 text-sm text-gray-800">
+                <td className="px-4 py-2 text-sm text-gray-800">
                   {item.userName}
                 </td>
-                <td className="px-2 py-2 text-sm text-gray-800">
+                <td className="px-4 py-2 text-sm text-gray-800">
                   {item.userId === userId ? (
                     <span className="text-gray-600">自分</span>
                   ) : (

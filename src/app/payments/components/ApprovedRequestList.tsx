@@ -63,17 +63,17 @@ const ApprovedRequestList = ({
           <tbody className="divide-y divide-gray-200">
             {approvedPayRequest.map((item) => (
               <tr key={item.requestId}>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="px-4 py-4 text-sm text-gray-800">
                   {transDateFormat(item.approvedAt)}
                 </td>
 
-                <td className="max-w-28 px-4 py-2 text-sm text-gray-800">
+                <td className="max-w-28 px-4 py-4 text-sm text-gray-800">
                   {item.paymentTitle}
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="px-4 py-4 text-sm text-gray-800">
                   {item.paymentCost} 円
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="px-4 py-4 text-sm text-gray-800">
                   {item.userName}
                 </td>
               </tr>
