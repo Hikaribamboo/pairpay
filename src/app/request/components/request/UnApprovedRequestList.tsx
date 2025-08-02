@@ -66,8 +66,8 @@ const UnApprovedRequestList = ({
         未認証リクエスト一覧
       </h1>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-left">
+      <div className="">
+        <table className="min-w-full text-left">
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-2 text-sm font-medium text-gray-600">
@@ -84,27 +84,26 @@ const UnApprovedRequestList = ({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="">
             {approvedPayRequest.map((item) => (
               <tr key={item.requestId}>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="max-w-28 px-2 py-2 text-sm text-gray-800">
                   {item.paymentTitle}
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="px-2 py-2 text-sm text-gray-800">
                   {item.paymentCost} 円
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="px-2 py-2 text-sm text-gray-800">
                   {item.userName}
                 </td>
-                <td className="px-4 py-2 text-sm text-gray-800">
+                <td className="px-2 py-2 text-sm text-gray-800">
                   {item.userId === userId ? (
                     <span className="text-gray-600">自分</span>
-                  ) : item.isApproved ? (
-                    <span className="text-green-600">承認済</span>
                   ) : (
                     <button
                       onClick={() => handleApprove(item.requestId)}
-                      className="font-bold text-blue-600 hover:underline"
+                      type="button"
+                      className="text-white min-w-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-md text-xs px-2 py-2 text-center cursor-pointer hover:bg-gradient-to-br transition duration-300"
                     >
                       承認
                     </button>

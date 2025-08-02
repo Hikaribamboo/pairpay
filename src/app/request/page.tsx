@@ -47,7 +47,7 @@ const RequestPage = () => {
   }, []);
 
   return (
-    <div className="relative mt-12">
+    <div className="relative mt-8 mb-16">
       <UnApprovedRequestList
         approvedPayRequest={payRequest.filter((item) => !item.isApproved)}
         setPayRequests={setPayRequest}
