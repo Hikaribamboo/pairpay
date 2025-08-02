@@ -27,7 +27,7 @@ export const createPaymentRequest = async ({
   paymentMemo,
   category,
 }: RequestPayment) => {
-  const res = await fetch("/api/webhooks/line/payment", {
+  const res = await fetch("api/request/payment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

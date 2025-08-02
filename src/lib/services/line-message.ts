@@ -2,6 +2,7 @@
 import "server-only";
 import * as line from "@line/bot-sdk";
 import type { Payment } from "@/types/request/payment";
+import type { SendRequestMessage } from "@/types/line/message";
 
 const config = {
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
@@ -55,17 +56,8 @@ export async function sendApprovalNotification(
   await pushMessageToLine(target, message);
 }
 
-// 購入リクエスト通知（Flex）
-export interface RequestPaymentParams {
-  userName: string;
-  paymentTitle: string;
-  paymentCost: number;
-  itemLink?: string;
-  requestId: string;
-}
-
 export async function sendNewPaymentRequestNotification(
-  params: RequestPaymentParams,
+  params: SendRequestMessage,
   target: LineTarget
 ): Promise<void> {
   const { userName, paymentTitle, paymentCost, itemLink, requestId } = params;
