@@ -2,7 +2,6 @@
 import { getAuth, signInWithCustomToken } from "firebase/auth";
 import { app } from "@/lib/firebase-client";
 
-// 1) /api/callback を呼んで userId/userName/customToken を受け取る
 export async function fetchLineLogin(code: string, redirectUri: string) {
   const res = await fetch(
     `/api/callback?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}`
@@ -15,7 +14,6 @@ export async function fetchLineLogin(code: string, redirectUri: string) {
   }>;
 }
 
-// 2) 受け取った customToken で Firebase にログインし、sessionStorage に保存
 export async function signInAndCache(
   customToken: string,
   userId: string,

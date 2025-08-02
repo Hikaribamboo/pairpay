@@ -5,7 +5,7 @@ import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { FaRegPaste } from "react-icons/fa6";
 import { createPaymentRequest } from "@/lib/api/request/papyment";
-import EnterCost from "./components/EnterCost";
+import EnterCost from "@/app/components/forms/components/EnterCost";
 
 interface PaymentRequestFormProps {
   onCreated: () => void;

@@ -20,7 +20,7 @@ export function useLineAuth(code?: string) {
       const token = sessionStorage.getItem("token");
       if (userId && userName && token) {
         setUser({ userId, userName });
-        router.replace("/request");
+        router.replace("/payments");
         return true;
       }
       return false;
@@ -39,7 +39,7 @@ export function useLineAuth(code?: string) {
           );
           await signInAndCache(customToken, userId, userName);
           setUser({ userId, userName });
-          router.replace("/request");
+          router.replace("/payments");
         } catch (e: any) {
           console.error("LINE login failed:", e);
           setError(e);

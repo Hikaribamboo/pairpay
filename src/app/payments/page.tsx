@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ApprovedRequestList from "./components/request/ApprovedRequestList";
-import PaymentRequestForm from "./components/forms/PaymentRequestForm";
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
 import type { Payment } from "@/types/request/payment";
 import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
-import DepositRequestForm from "./components/forms/DepositRequestForm";
-import SavingRequestForm from "./components/forms/SavingRequest";
-import UnApprovedRequestList from "./components/request/UnApprovedRequestList";
+import DepositRequestForm from "@/app/components/forms/DepositRequestForm";
+import SavingRequestForm from "@/app/components/forms/SavingRequestForm";
+import UnApprovedRequestList from "@/app/payments/components/UnApprovedRequestList";
+import ApprovedRequestList from "@/app/payments/components/ApprovedRequestList";
+import PaymentRequestForm from "@/app/components/forms/PaymentRequestForm";
 
 const RequestPage = () => {
   const [payRequest, setPayRequest] = useState<Payment[]>([]);
