@@ -2,27 +2,21 @@ import React from "react";
 import { FiDelete } from "react-icons/fi";
 
 type Props = {
-  paymentCost: string;
-  setPaymentCost: React.Dispatch<React.SetStateAction<string>>;
+  paymentCost: number;
+  setPaymentCost: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const EnterCost = ({ paymentCost, setPaymentCost }: Props) => {
-  const digits = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "000",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0",
-    "00",
-  ];
-  const handleCostButton = (digit: string) => {
+  const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  const handleCostButton = (digit: number) => {
     setPaymentCost((prev) => prev + digit);
+  };
+
+  const handleDelete = () => {
+    const costStr = paymentCost.toString();
+    const newStr = costStr.slice(0, -1);
+    const newCost = parseInt(newStr || "0", 10);
+    setPaymentCost(newCost);
   };
 
   return (
@@ -31,25 +25,21 @@ const EnterCost = ({ paymentCost, setPaymentCost }: Props) => {
       <div>
         <label className="text-md font-medium text-gray-700">Cost</label>
         <div className="relative border-b border-gray-400 mb-2 block">
-          <input
-            value={paymentCost}
-            onChange={(e) => setPaymentCost(e.target.value)}
-            className="w-full text-xl ml-4"
-          />
+          <input value={paymentCost} className="w-full text-xl ml-4" />
           <FiDelete
-            onClick={() => setPaymentCost((prev) => prev.slice(0, -1))}
+            onClick={handleDelete}
             className="size-7 absolute right-3 bottom-2 text-gray-500"
           />
         </div>
         <div className="grid grid-cols-6 gap-2 mt-2">
-          {digits.map((d) => (
+          {digits.map((digit) => (
             <button
-              key={d}
+              key={digit}
               type="button"
-              onClick={() => handleCostButton(d)}
+              onClick={() => handleCostButton(digit)}
               className="py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-center font-medium"
             >
-              {d}
+              {digit}
             </button>
           ))}
         </div>

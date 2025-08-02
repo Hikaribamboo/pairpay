@@ -18,7 +18,7 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
   const { userId } = user ?? {};
   const userName = user?.userName || "匿名ユーザー";
   const [paymentTitle, setPaymentTitle] = useState("");
-  const [paymentCost, setPaymentCost] = useState("");
+  const [paymentCost, setPaymentCost] = useState(0);
   const [itemLink, setItemLink] = useState("");
   const [paymentMemo, setPaymentMemo] = useState("");
   const [status, setStatus] = useState("");
@@ -49,7 +49,7 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
       // 通常のPOST処理などを入れる
       setStatus("送信＆保存成功！");
       setPaymentTitle("");
-      setPaymentCost("");
+      setPaymentCost(0);
       setItemLink("");
       setPaymentMemo("");
       setSelectedCategory("");
