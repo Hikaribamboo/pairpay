@@ -130,3 +130,66 @@ export async function sendNewPaymentRequestNotification(
 
   await pushMessageToLine(target, flexMessage);
 }
+
+// ルール変更通知（固定＋自由どちらも使える）
+export async function sendRulesUpdatedNotification(
+  previous: { fixed: any; free: string[] } | null,
+  current: { fixed: any; free: string[] },
+  target: LineTarget
+): Promise<void> {
+  const diffs: string[] = [];
+
+  if (previous) {
+    // contributionRatio の差分
+    if (previous.fixed.contributionRatio !== current.fixed.contributionRatio) {
+      diffs.push(
+        `・入金負担割合: ${previous.fixed.contributionRatio} → ${current.fixed.contributionRatio}`
+      );
+    }
+    // allowedCategories の差分
+    const addedAllowed = current.fixed.allowedCategories.filter(
+      (c: string) => !previous.fixed.allowedCategories.includes(c)
+    );
+    const removedAllowed = previous.fixed.allowedCategories.filter(
+      (c: string) => !current.fixed.allowedCategories.includes(c)
+    );
+    if (addedAllowed.length)
+      diffs.push(`・許可カテゴリに追加: ${addedAllowed.join(", ")}`);
+    if (removedAllowed.length)
+      diffs.push(`・許可カテゴリから削除: ${removedAllowed.join(", ")}`);
+
+    // savingCategories の差分
+    const addedSaving = current.fixed.savingCategories.filter(
+      (c: string) => !previous.fixed.savingCategories.includes(c)
+    );
+    const removedSaving = previous.fixed.savingCategories.filter(
+      (c: string) => !current.fixed.savingCategories.includes(c)
+    );
+    if (addedSaving.length)
+      diffs.push(`・貯金カテゴリに追加: ${addedSaving.join(", ")}`);
+    if (removedSaving.length)
+      diffs.push(`・貯金カテゴリから削除: ${removedSaving.join(", ")}`);
+
+    // 自由ルールの差分
+    const addedFree = current.free.filter((f) => !previous.free.includes(f));
+    const removedFree = previous.free.filter((f) => !current.free.includes(f));
+    if (addedFree.length)
+      diffs.push(`・自由ルール追加: ${addedFree.map((f) => `"${f}"`).join(", ")}`);
+    if (removedFree.length)
+      diffs.push(
+        `・自由ルール削除: ${removedFree
+          .map((f) => `"${f}"`)
+          .join(", ")}`
+      );
+  } else {
+    diffs.push("初回ルール設定が行われました。");
+  }
+
+  const bodyText =
+    diffs.length > 0
+      ? ["ルールが更新されました：", ...diffs].join("\n")
+      : "ルールの更新がありましたが、差分が検知できませんでした。";
+
+  await pushSimpleText(target, bodyText);
+}
+
