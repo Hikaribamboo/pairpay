@@ -27,8 +27,7 @@ export async function approvePaymentRequest(
   if (data.userId === userId)
     throw new ApprovalError(403, "Cannot approve your own request");
 
-  if (data.isApproved)
-    throw new ApprovalError(409, "Already approved");
+  if (data.isApproved) throw new ApprovalError(409, "Already approved");
 
   await docRef.update({
     isApproved: true,

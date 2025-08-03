@@ -15,7 +15,11 @@ export async function GET() {
   const existing = await getCurrentRules();
   return NextResponse.json(
     existing || {
-      fixed: { contributionRatio: 5, allowedCategories: [], savingCategories: [] },
+      fixed: {
+        contributionRatio: 5,
+        allowedCategories: [],
+        savingCategories: [],
+      },
       free: [],
     }
   );

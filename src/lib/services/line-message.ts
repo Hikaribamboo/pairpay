@@ -174,12 +174,12 @@ export async function sendRulesUpdatedNotification(
     const addedFree = current.free.filter((f) => !previous.free.includes(f));
     const removedFree = previous.free.filter((f) => !current.free.includes(f));
     if (addedFree.length)
-      diffs.push(`・自由ルール追加: ${addedFree.map((f) => `"${f}"`).join(", ")}`);
+      diffs.push(
+        `・自由ルール追加: ${addedFree.map((f) => `"${f}"`).join(", ")}`
+      );
     if (removedFree.length)
       diffs.push(
-        `・自由ルール削除: ${removedFree
-          .map((f) => `"${f}"`)
-          .join(", ")}`
+        `・自由ルール削除: ${removedFree.map((f) => `"${f}"`).join(", ")}`
       );
   } else {
     diffs.push("初回ルール設定が行われました。");
@@ -192,4 +192,3 @@ export async function sendRulesUpdatedNotification(
 
   await pushSimpleText(target, bodyText);
 }
-

@@ -18,7 +18,7 @@ export async function PATCH(
 
   try {
     const updated = await approvePaymentRequest(requestId, userId);
-    
+
     return NextResponse.json(updated);
   } catch (e) {
     if (e instanceof ApprovalError) {
@@ -26,5 +26,4 @@ export async function PATCH(
     }
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-  
 }

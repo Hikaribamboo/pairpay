@@ -4,9 +4,7 @@ import {
   approvePaymentRequest,
   ApprovalError,
 } from "@/lib/services/approval-request";
-import {
-  pushSimpleText,
-} from "@/lib/services/line-message";
+import { pushSimpleText } from "@/lib/services/line-message";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -34,8 +32,8 @@ export async function POST(req: NextRequest) {
           e.status === 403
             ? "自分のリクエストは承認できません"
             : e.status === 409
-            ? `「${paymentTitle}」はすでに承認されています`
-            : `「${paymentTitle}」の承認に失敗しました`;
+              ? `「${paymentTitle}」はすでに承認されています`
+              : `「${paymentTitle}」の承認に失敗しました`;
         await pushSimpleText(target, msg);
       } else {
         console.error(e);

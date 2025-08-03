@@ -7,8 +7,8 @@ export interface SendRequestMessage {
   paymentMemo?: string;
   category?: string;
   requestId?: string; // Firestoreに登録後に付与される
-};
+}
 
 export interface LineTarget {
   groupId: string;
-};
+}
