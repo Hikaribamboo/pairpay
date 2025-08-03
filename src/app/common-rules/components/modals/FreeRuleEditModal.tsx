@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalOverlay from "@/app/common-rules/modals/ModalOverlay";
+import ModalOverlay from "@/app/common-rules/components/modals/ModalOverlay";
 
 type FreeRuleEditModalProps = {
   initial?: string;
@@ -7,7 +7,6 @@ type FreeRuleEditModalProps = {
   free: string[];
   // eslint-disable-next-line no-unused-vars
   onSave: (newFree: string[]) => void | Promise<void>;
-
   onClose: () => void;
 };
 

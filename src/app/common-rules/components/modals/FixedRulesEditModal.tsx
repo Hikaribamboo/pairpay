@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ModalOverlay from "@/app/common-rules/modals/ModalOverlay";
+import ModalOverlay from "@/app/common-rules/components/modals/ModalOverlay";
 import type { FixedRules } from "@/types/common-rule";
 
 type FixedRulesEditModalProps = {

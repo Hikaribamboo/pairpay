@@ -4,9 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import type { FixedRules } from "@/types/common-rule";
 import { fetchRules, updateRules } from "@/lib/api/common-rule";
 import { Pencil } from "lucide-react";
-import FixedRulesEditModal from "@/app/common-rules/modals/FixedRulesEditModal";
-import FreeRuleEditModal from "@/app/common-rules/modals/FreeRuleEditModal";
-
+import FreeRuleEditModal from "@/app/common-rules/components/modals/FreeRuleEditModal";
+import FixedRuleDisplay from "@/app/common-rules/components/FixedRuleDisplay";
 export default function RulesPage() {
   const [fixed, setFixed] = useState<FixedRules>({
     contributionRatio: 5,
@@ -15,7 +14,7 @@ export default function RulesPage() {
   });
   const [free, setFree] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingFixed, setEditingFixed] = useState(false);
+
   const [editingFreeIndex, setEditingFreeIndex] = useState<number | null>(null);
   const [addingFree, setAddingFree] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +62,11 @@ export default function RulesPage() {
     }
   };
 
+  const handleDeleteFree = async (index: number) => {
+    await handleFreeSave(free.filter((_, i) => i !== index));
+    const newFree = free.filter((_, i) => i !== index);
+    setFree(newFree);
+  };
   if (loading) return <div className="p-6">読み込み中...</div>;
 
   return (
@@ -70,35 +74,7 @@ export default function RulesPage() {
       {error && (
         <div className="bg-red-100 text-red-800 px-4 py-2 rounded">{error}</div>
       )}
-
-      {/* 固定ルール表示 */}
-      <section className="border p-4 rounded flex flex-col md:flex-row justify-between items-start gap-4">
-        <div className="flex-1 space-y-2">
-          <h2 className="text-lg font-bold">固定ルール</h2>
-          <div className="text-sm">
-            <div>
-              <span className="font-medium">入金負担割合:</span>{" "}
-              {fixed.contributionRatio} / 10
-            </div>
-            <div>
-              <span className="font-medium">許可カテゴリ:</span>{" "}
-              {fixed.allowedCategories.join(", ") || "なし"}
-            </div>
-            <div>
-              <span className="font-medium">貯金カテゴリ:</span>{" "}
-              {fixed.savingCategories.join(", ") || "なし"}
-            </div>
-          </div>
-        </div>
-        <div>
-          <button
-            onClick={() => setEditingFixed(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded"
-          >
-            <Pencil size={16} /> 編集
-          </button>
-        </div>
-      </section>
+      <FixedRuleDisplay fixed={fixed} onSave={handleFixedSave} />
 
       {/* 自由ルール表示 */}
       <section className="border p-4 rounded space-y-4">
@@ -133,7 +109,7 @@ export default function RulesPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setFree((prev) => prev.filter((_, idx) => idx !== i));
+                      handleDeleteFree(i);
                     }}
                     className="text-sm px-2 py-1 border rounded text-red-600"
                   >
@@ -145,15 +121,6 @@ export default function RulesPage() {
           </ul>
         )}
       </section>
-
-      {/* 固定ルール編集モーダル */}
-      {editingFixed && (
-        <FixedRulesEditModal
-          fixed={fixed}
-          onClose={() => setEditingFixed(false)}
-          onSave={handleFixedSave} // (draft: FixedRules) => void
-        />
-      )}
 
       {/* 自由ルール追加 */}
       {addingFree && (
