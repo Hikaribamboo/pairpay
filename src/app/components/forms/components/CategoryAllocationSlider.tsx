@@ -2,19 +2,12 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Box, Typography, Slider } from "@mui/material";
+import { THEME_COLORS } from "@/lib/theme-colors";
 
 type Props = {
   totalAmount: number;
   selectedCategories: string[];
 };
-
-const COLORS = [
-  "#54de92ff",
-  "#5ba2f8ff",
-  "#9076f8ff",
-  "#ff7585ff",
-  "#ffee38ff",
-];
 
 const clamp = (n: number, min: number, max: number) =>
   Math.min(max, Math.max(min, n));
@@ -65,7 +58,7 @@ export default function CategoryAllocationSlider({
   // 各区間に対応する色（ループ）
   const segmentColors = Array.from(
     { length: segmentCount },
-    (_, i) => COLORS[i % COLORS.length]
+    (_, i) => THEME_COLORS[i % THEME_COLORS.length]
   );
 
   // 背景グラデーション（境界をシャープにするため start/end を二回ずつ指定）
