@@ -1,16 +1,29 @@
-// app/page.tsx (Server Component)
+// app/page.tsx
+"use client";
+
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AuthClient from "@/app/components/AuthClient";
+import LeadLineFriend from "@/app/components/LeadLineFriend";
 
-type ServerCpmponent = Record<string, string | string[] | undefined>;
+export default function Page() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const codeParam = params.get("code");
+  const stateParam = params.get("state");
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<ServerCpmponent>;
-}) {
-  const sp = await searchParams;
-  const raw = sp?.code;
-  const code = Array.isArray(raw) ? raw[0] : raw;
+  if (codeParam && stateParam) {
+    return <AuthClient code={codeParam} state={stateParam} />;
+  }
 
-  return <AuthClient code={typeof code === "string" ? code : undefined} />;
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+    const groupId = localStorage.getItem("groupId");
+    if (userId && token && groupId) {
+      router.replace("/payments");
+    }
+  }, [router]);
+
+  return <LeadLineFriend />;
 }

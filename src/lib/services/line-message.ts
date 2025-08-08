@@ -192,3 +192,64 @@ export async function sendRulesUpdatedNotification(
 
   await pushSimpleText(target, bodyText);
 }
+
+export async function sendWelcomeLink(target: LineTarget): Promise<void> {
+  const appUrl = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL!;
+  const clientId = process.env.NEXT_PUBLIC_LINE_CLIENT_ID!;
+  const redirect = `${appUrl}/`;
+  const groupId = target.groupId;
+  const loginUrl =
+    "https://access.line.me/oauth2/v2.1/authorize?" +
+    new URLSearchParams({
+      response_type: "code",
+      client_id: clientId,
+      redirect_uri: redirect,
+      state: groupId,
+      scope: "profile openid",
+    });
+
+  const flexMessage: line.Message = {
+    type: "flex",
+    altText: "PairPayへようこそ！",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          {
+            type: "text",
+            text: "ペアPayへようこそ！",
+            weight: "bold",
+            size: "lg",
+          },
+          {
+            type: "text",
+            text: "下のボタンからログインしてペア登録を始めましょう",
+            size: "sm",
+            wrap: true,
+          },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        spacing: "sm",
+        contents: [
+          {
+            type: "button",
+            style: "primary",
+            action: {
+              type: "uri",
+              label: "LINEログイン",
+              uri: loginUrl,
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  await pushMessageToLine(target, flexMessage);
+}

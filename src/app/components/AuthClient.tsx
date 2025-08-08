@@ -2,8 +2,14 @@
 "use client";
 import { useLineAuth } from "@/app/hooks/useLineAuth";
 
-export default function AuthClient({ code }: { code?: string }) {
-  const { loading, error } = useLineAuth(code);
+export default function AuthClient({
+  code,
+  state,
+}: {
+  code?: string;
+  state?: string;
+}) {
+  const { loading, error } = useLineAuth(code, state);
 
   if (loading)
     return <p className="text-center mt-10 text-gray-500">ログイン中…</p>;

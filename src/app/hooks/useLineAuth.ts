@@ -5,43 +5,43 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSetAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import { fetchLineLogin, signInAndCache } from "@/lib/api/auth/auth";
+import { fetchLineLogin } from "@/lib/api/auth/auth";
 
-export function useLineAuth(code?: string) {
+export function useLineAuth(code?: string, state?: string) {
   const router = useRouter();
   const setUser = useSetAtom(userAtom);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const tryRestore = () => {
-      const userId = sessionStorage.getItem("userId");
-      const userName = sessionStorage.getItem("userName");
-      const token = sessionStorage.getItem("token");
-      if (userId && userName && token) {
-        setUser({ userId, userName });
-        router.replace("/payments");
-        return true;
-      }
-      return false;
-    };
-    if (tryRestore()) return;
+    const userId = localStorage.getItem("userId");
+    const userName = localStorage.getItem("userName");
+    const token = localStorage.getItem("token");
+    const groupId = localStorage.getItem("groupId");
+    if (userId && userName && token && groupId) {
+      setUser({ userId, userName, groupId });
+      router.replace("/payments");
+      return;
+    }
 
-    const redirectUri = `${window.location.origin}/`;
-
-    if (code) {
+    if (code && state) {
       (async () => {
         setLoading(true);
         try {
+          const groupId = state;
           const { userId, userName, customToken } = await fetchLineLogin(
             code,
-            redirectUri
+            `${window.location.origin}/`,
+            groupId
           );
-          await signInAndCache(customToken, userId, userName);
-          setUser({ userId, userName });
+          localStorage.setItem("token", customToken);
+          localStorage.setItem("userId", userId);
+          localStorage.setItem("userName", userName);
+          localStorage.setItem("groupId", groupId);
+          setUser({ userId, userName, groupId });
           router.replace("/payments");
         } catch (e: any) {
-          console.error("LINE login failed:", e);
+          console.error(e);
           setError(e);
         } finally {
           setLoading(false);
@@ -49,19 +49,7 @@ export function useLineAuth(code?: string) {
       })();
       return;
     }
-
-    // code も既存セッションもない → 認可ページへ
-    const loginUrl =
-      "https://access.line.me/oauth2/v2.1/authorize?" +
-      new URLSearchParams({
-        response_type: "code",
-        client_id: process.env.NEXT_PUBLIC_LINE_CLIENT_ID!,
-        redirect_uri: redirectUri,
-        state: "12345",
-        scope: "profile openid",
-      });
-    window.location.href = loginUrl;
-  }, [code, router, setUser]);
+  }, [code, state, router, setUser]);
 
   return { loading, error };
 }
