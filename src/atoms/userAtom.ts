@@ -1,10 +1,9 @@
-import { atomWithStorage, createJSONStorage } from "jotai/utils";
-import { User } from "@/types/user";
+import { atom } from "jotai";
 
-const storage = createJSONStorage<User | undefined>(() => sessionStorage);
+export type User = {
+  userId: string;
+  userName: string;
+  groupId: string;
+};
 
-export const userAtom = atomWithStorage<User | undefined>(
-  "user",
-  undefined,
-  storage
-);
+export const userAtom = atom<User | null>(null);
