@@ -29,15 +29,15 @@ export function useLineAuth(code?: string, state?: string) {
         setLoading(true);
         try {
           const groupId = state;
-          const { userId, userName, customToken } = await fetchLineLogin(
-            code,
-            `${window.location.origin}/`,
-            groupId
-          );
+          const { userId, userName, customToken, pairUserId, pairUserName } =
+            await fetchLineLogin(code, `${window.location.origin}/`, groupId);
           localStorage.setItem("token", customToken);
           localStorage.setItem("userId", userId);
           localStorage.setItem("userName", userName);
           localStorage.setItem("groupId", groupId);
+          localStorage.setItem("pairUserId", pairUserId);
+          localStorage.setItem("pairUserName", pairUserName);
+
           setUser({ userId, userName, groupId });
           router.replace("/payments");
         } catch (e: any) {

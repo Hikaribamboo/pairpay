@@ -1,7 +1,4 @@
 // lib/api/auth/auth.ts
-import { getAuth, signInWithCustomToken } from "firebase/auth";
-import { auth } from "@/lib/firebase-client";
-
 export async function fetchLineLogin(
   code: string,
   redirectUri: string,
@@ -17,5 +14,7 @@ export async function fetchLineLogin(
     userId: string;
     userName: string;
     customToken: string;
+    pairUserId: string;
+    pairUserName: string;
   }>;
 }

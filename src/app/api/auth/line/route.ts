@@ -1,10 +1,11 @@
 // app/api/auth/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb, adminAuth } from "@/lib/firebase-server";
+import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   const { code, redirectUri, groupId } = await req.json();
-  if (!code || !redirectUri) {
+  if (!code || !redirectUri || !groupId) {
     return NextResponse.json(
       { error: "Missing code or redirectUri" },
       { status: 400 }
@@ -59,11 +60,46 @@ export async function POST(req: NextRequest) {
     { merge: true }
   );
 
+  const groupRef = adminDb.collection("groups").doc(groupId);
+  const groupSnap = await groupRef.get();
+
+  let pairUserId: string | null = null;
+  let pairUserName: string | null = null;
+
+  if (!groupSnap.exists) {
+    // 初回：ドキュメントがなければ新規作成
+    await groupRef.set({
+      groupId,
+      members: [profile.userId],
+    });
+  } else {
+    const data = groupSnap.data()!;
+
+    // 必要なら追加
+    if (!data.members.includes(profile.userId) && data.members.length < 2) {
+      await groupRef.update({
+        members: FieldValue.arrayUnion(profile.userId),
+      });
+    }
+
+    // ペアの userName を取得
+    const pairId = data.members.find((id: string) => id !== profile.userId);
+    if (pairId) {
+      pairUserId = pairId;
+      const pairDoc = await adminDb.collection("users").doc(pairId).get();
+      if (pairDoc.exists) {
+        pairUserName = pairDoc.data()?.userName ?? null;
+      }
+    }
+  }
+
   const customToken = await adminAuth.createCustomToken(profile.userId);
 
   return NextResponse.json({
     userId: profile.userId,
     userName: profile.displayName,
     customToken,
+    pairUserId,
+    pairUserName,
   });
 }
