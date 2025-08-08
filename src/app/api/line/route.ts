@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
   for (const ev of events) {
     switch (ev.type) {
       case "join":
-        // ボットがグループに招待されたとき
         if (ev.source.type === "group") {
           const groupId = ev.source.groupId;
           await sendWelcomeLink({ groupId });
@@ -21,7 +20,6 @@ export async function POST(req: NextRequest) {
         break;
 
       case "postback": {
-        // 承認ボタンが押されたとき
         const params = new URLSearchParams(ev.postback.data);
         const requestId = params.get("id");
         const paymentTitle = params.get("paymentTitle") ?? "（不明）";
