@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
-import CategoryAllocationSlide from "@/app/components/forms/components/CategoryAllocationSlider";
-import EnterCost from "@/app/components/forms/components/EnterCost";
+import CategoryAllocationSlide from "@/app/payments/components/forms/components/CategoryAllocationSlider";
+import EnterCost from "@/app/payments/components/forms/components/EnterCost";
 
 const SavingRequestForm = () => {
   const [user] = useAtom(userAtom);

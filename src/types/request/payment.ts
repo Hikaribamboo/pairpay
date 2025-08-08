@@ -6,6 +6,7 @@ export interface Payment {
   userName: string;
   paymentTitle: string;
   paymentCost: number;
+  paidBy: "A" | "B" | null;
   itemLink?: string;
   paymentMemo?: string;
   category?: string;

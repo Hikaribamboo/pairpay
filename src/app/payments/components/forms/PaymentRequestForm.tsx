@@ -5,7 +5,8 @@ import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { FaRegPaste } from "react-icons/fa6";
 import { createPaymentRequest } from "@/lib/api/request/papyment";
-import EnterCost from "@/app/components/forms/components/EnterCost";
+import EnterCost from "@/app/payments/components/forms/components/EnterCost";
+import CheckPayedRequest from "@/app/payments/components/CheckPayedRequest";
 
 interface PaymentRequestFormProps {
   onCreated: () => void;
@@ -117,6 +118,8 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
             </button>
           </div>
         </div>
+
+        <CheckPayedRequest />
 
         <EnterCost paymentCost={paymentCost} setPaymentCost={setPaymentCost} />
 
