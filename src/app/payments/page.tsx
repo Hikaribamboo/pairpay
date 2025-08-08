@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { IoCloseSharp } from "react-icons/io5";
 import type { Payment } from "@/types/request/payment";
 import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
+import { useAtom } from "jotai";
+import { userAtom } from "@/atoms/userAtom";
 import DepositRequestForm from "@/app/payments/components/forms/DepositRequestForm";
 import SavingRequestForm from "@/app/payments/components/forms/SavingRequestForm";
 import UnApprovedRequestList from "@/app/payments/components/UnApprovedRequestList";
@@ -12,25 +15,23 @@ import ApprovedRequestList from "@/app/payments/components/ApprovedRequestList";
 import PaymentRequestForm from "@/app/payments/components/forms/PaymentRequestForm";
 
 const RequestPage = () => {
+  const router = useRouter();
   const [payRequest, setPayRequest] = useState<Payment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user] = useAtom(userAtom);
 
   const [formType, setFormType] = useState<
     "payment" | "deposit" | "saving" | null
   >(null);
 
-  const openForm = (type: "payment" | "deposit" | "saving") => {
-    setFormType(type);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setFormType(null);
-  };
-
   useEffect(() => {
+    if (user === undefined) return;
+
+    if (user === null) {
+      router.replace("/");
+      return;
+    }
     const load = async () => {
       setLoading(true);
       try {
@@ -46,6 +47,15 @@ const RequestPage = () => {
     load();
   }, []);
 
+  const openForm = (type: "payment" | "deposit" | "saving") => {
+    setFormType(type);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setFormType(null);
+  };
   return (
     <div className="relative mt-8 mb-16">
       <UnApprovedRequestList
