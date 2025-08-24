@@ -32,8 +32,6 @@ export async function POST(req: NextRequest) {
       isApproved: false,
     });
     const requestId = docRef.id;
-    console.log("Payment request created with ID:", requestId);
-
     const isValidHttpUrl =
       typeof itemLink === "string" && /^https?:\/\//i.test(itemLink);
 

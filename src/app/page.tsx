@@ -1,36 +1,37 @@
 // app/page.tsx
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSetAtom } from "jotai";
+import { userAtom } from "@/atoms/userAtom";
 import AuthClient from "@/app/components/AuthClient";
 import LeadLineFriend from "@/app/components/LeadLineFriend";
 
-export default function Page() {
+function PageInner() {
   const router = useRouter();
   const params = useSearchParams();
+  const setUser = useSetAtom(userAtom);
 
   const code = params.get("code");
-  const state = params.get("state"); // ← LINEのstate（今回はgroupId相当 or 'nogroup'）
-
-  // ❶ LINE 認可から戻ってきた
-  if (code && state) {
-    return <AuthClient code={code} state={state} />;
-  }
+  const state = params.get("state");
 
   useEffect(() => {
-    // ❷ 既にログイン済みなら /payments
+    if (code && state) return;
+
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
+    const userName = localStorage.getItem("userName") ?? "匿名ユーザー";
+    const groupId = localStorage.getItem("groupId") ?? undefined;
+
     if (userId && token) {
+      setUser({ userId, userName, groupId });
       router.replace("/payments");
       return;
     }
 
-    // ❸ 未ログイン → その場で LINE 認可へ
     const redirectUri = `${window.location.origin}/`;
-    // groupId がまだ無いケースは 'nogroup' としておく（API 側で optional 扱い）
-    const state = localStorage.getItem("groupId") ?? "nogroup";
+    const st = localStorage.getItem("groupId") ?? "nogroup";
 
     const loginUrl =
       "https://access.line.me/oauth2/v2.1/authorize?" +
@@ -38,13 +39,23 @@ export default function Page() {
         response_type: "code",
         client_id: process.env.NEXT_PUBLIC_LINE_CLIENT_ID!,
         redirect_uri: redirectUri,
-        state, // groupId or 'nogroup'
+        state: st,
         scope: "profile openid",
       });
 
     window.location.href = loginUrl;
-  }, [router]);
+  }, [router, code, state, setUser]); // ← setUser を依存に追加
 
-  // ここに来るのは基本的に少ない（手動で戻ってきた等）
+  if (code && state) {
+    return <AuthClient code={code} state={state} />;
+  }
   return <LeadLineFriend />;
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <PageInner />
+    </Suspense>
+  );
 }

@@ -16,7 +16,6 @@ export async function approvePaymentRequest(
   requestId: string,
   userId: string
 ): Promise<Payment> {
-  console.log(`Approving request ${requestId} by user ${userId}`);
   const docRef = adminDb.collection("paymentRequests").doc(requestId);
   const beforeSnap = await docRef.get();
 
@@ -42,7 +41,7 @@ export async function approvePaymentRequest(
   } as Payment;
 
   const groupId = process.env.LINE_GROUP_ID!;
-  await sendApprovalNotification(updatedPayment, { groupId });
+  await sendApprovalNotification(updatedPayment, groupId);
 
   return updatedPayment;
 }

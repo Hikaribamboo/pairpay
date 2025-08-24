@@ -1,4 +1,4 @@
-import { RequestPayment } from "@/types/request/payment";
+import { Payment, RequestPayment } from "@/types/request/payment";
 
 export const fetchAllPaymentRequest = async () => {
   const res = await fetch("/api/request/payment");
@@ -18,33 +18,21 @@ export const fetchPaymentByPeriod = async (from: string, to: string) => {
   return res.json();
 };
 
-export const createPaymentRequest = async ({
-  userId,
-  userName,
-  paymentTitle,
-  paymentCost,
-  itemLink,
-  paymentMemo,
-  category,
-}: RequestPayment) => {
-  const res = await fetch("api/request/payment", {
+export const createPaymentRequest = async (
+  payload: RequestPayment
+): Promise<Payment> => {
+  const res = await fetch("/api/request/payment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId,
-      userName,
-      paymentTitle,
-      paymentCost,
-      itemLink,
-      paymentMemo,
-      category,
-    }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
-    throw new Error(`Failed to create payment request: ${res.statusText}`);
+    throw new Error(
+      `Failed to create payment request: ${res.status} ${res.statusText}`
+    );
   }
-  const { requestId } = await res.json();
-  return requestId;
+  const saved: Payment = await res.json();
+  return saved;
 };
 
 export const updatePayment = async (requestId: string, userId: string) => {

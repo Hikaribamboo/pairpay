@@ -17,9 +17,7 @@ export async function pushMessageToLine(
   message: line.Message | line.Message[]
 ): Promise<void> {
   try {
-    if (groupId === "groupId") {
-      await lineClient.pushMessage(groupId, message);
-    }
+    await lineClient.pushMessage(groupId, message);
   } catch (e: any) {
     console.error(
       "LINE pushMessageToLine error:",
@@ -194,7 +192,6 @@ export async function sendWelcomeLink(groupId: string): Promise<void> {
   const appUrl = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL!;
   const clientId = process.env.NEXT_PUBLIC_LINE_CLIENT_ID!;
   const redirect = `${appUrl}/`;
-  const groupId = groupId;
   const loginUrl =
     "https://access.line.me/oauth2/v2.1/authorize?" +
     new URLSearchParams({

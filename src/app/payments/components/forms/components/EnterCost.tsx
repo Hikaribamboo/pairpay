@@ -25,7 +25,13 @@ const EnterCost = ({ paymentCost, setPaymentCost }: Props) => {
       <div>
         <label className="text-md font-medium text-gray-700">Cost</label>
         <div className="relative border-b border-gray-400 mb-2 block">
-          <input value={paymentCost} className="w-full text-xl ml-4" />
+          <input
+            type="text"
+            value={paymentCost}
+            readOnly
+            inputMode="numeric"
+            className="w-full text-xl ml-4"
+          />
           <FiDelete
             onClick={handleDelete}
             className="size-7 absolute right-3 bottom-2 text-gray-500"

@@ -9,10 +9,10 @@ import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
 import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import DepositRequestForm from "@/app/payments/components/forms/DepositRequestForm";
+import PaymentRequestForm from "@/app/payments/components/forms/PaymentRequestForm";
 import SavingRequestForm from "@/app/payments/components/forms/SavingRequestForm";
 import UnApprovedRequestList from "@/app/payments/components/UnApprovedRequestList";
 import ApprovedRequestList from "@/app/payments/components/ApprovedRequestList";
-import PaymentRequestForm from "@/app/payments/components/forms/PaymentRequestForm";
 
 const RequestPage = () => {
   const router = useRouter();
@@ -45,7 +45,7 @@ const RequestPage = () => {
     };
 
     load();
-  }, []);
+  }, [router, user]);
 
   const openForm = (type: "payment" | "deposit" | "saving") => {
     setFormType(type);
@@ -124,11 +124,8 @@ const RequestPage = () => {
 
                 {formType === "payment" && (
                   <PaymentRequestForm
-                    onCreated={async () => {
-                      closeModal();
-                      const updated = await fetchAllPaymentRequest();
-                      setPayRequest(updated);
-                    }}
+                    setPayRequests={setPayRequest}
+                    onClose={closeModal}
                   />
                 )}
                 {formType === "deposit" && <DepositRequestForm />}

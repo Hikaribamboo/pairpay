@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { fetchAllPaymentRequest } from "@/lib/api/request/papyment";
 import type { Payment } from "@/types/request/payment";
 import { transDateFormat } from "@/lib/utils/transdate-format";
 
@@ -12,30 +10,7 @@ interface RequestListProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ApprovedRequestList = ({
-  approvedPayRequest,
-  setPayRequests,
-  loading,
-  setLoading,
-}: RequestListProps) => {
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const payments = await fetchAllPaymentRequest();
-        setLoading(false);
-        setPayRequests(payments);
-      } catch (e) {
-        console.error("リクエストリスト取得エラー", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  if (loading)
-    return <p className="text-center text-gray-500 mt-4">読み込み中...</p>;
-
+const ApprovedRequestList = ({ approvedPayRequest }: RequestListProps) => {
   return (
     <div className="max-w-4xl mx-auto p-4 mt-8">
       <h1 className="text-2xl font-700 text-center text-gray-800 mb-6">

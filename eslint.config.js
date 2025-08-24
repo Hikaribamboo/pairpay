@@ -7,11 +7,9 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
 export default [
   js.configs.recommended,
 
-  // TypeScript の基本設定（.ts/.tsx 対象）
   ...tseslint.config({
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
@@ -51,10 +49,7 @@ export default [
 
   // ✅ クライアント（ブラウザ）側：/app 配下ただし /app/api を除外
   {
-    files: [
-      "src/app/**/*.{ts,tsx}",
-      "!src/app/api/**",
-    ],
+    files: ["src/app/**/*.{ts,tsx}", "!src/app/api/**"],
     languageOptions: {
       globals: {
         ...globals.browser,

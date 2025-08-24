@@ -5,19 +5,22 @@ import { useAtom } from "jotai";
 import { userAtom } from "@/atoms/userAtom";
 import { FaRegPaste } from "react-icons/fa6";
 import { createPaymentRequest } from "@/lib/api/request/papyment";
+import type { Payment } from "@/types/request/payment";
 import EnterCost from "@/app/payments/components/forms/components/EnterCost";
 import CheckPayedRequest from "@/app/payments/components/CheckPayedRequest";
 
 interface PaymentRequestFormProps {
-  onCreated: () => void;
+  setPayRequests: React.Dispatch<React.SetStateAction<Payment[]>>;
+  onClose: () => void;
 }
 
 const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
-  onCreated,
+  setPayRequests,
+  onClose,
 }) => {
   const [user] = useAtom(userAtom);
-  const { userId } = user ?? {};
-  const userName = user?.userName || "匿名ユーザー";
+  const userId = user!.userId;
+  const userName = user!.userName;
   const [paymentTitle, setPaymentTitle] = useState("");
   const [paymentCost, setPaymentCost] = useState(0);
   const [itemLink, setItemLink] = useState("");
@@ -32,12 +35,33 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
     if (!paymentTitle || !paymentCost) {
       setStatus("アイテム名、金額は必須です");
       return;
-    } else if (!userId || !userName) {
+    }
+    if (!userId || !userName) {
       setStatus("ログインしていません");
       return;
     }
+
+    // 1) 楽観的エントリを作成して即座にリストへ差し込む
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Payment = {
+      requestId: tempId,
+      userId,
+      userName,
+      paymentTitle,
+      paymentCost,
+      paidBy: null,
+      itemLink,
+      paymentMemo,
+      category: selectedCategory,
+      isApproved: false,
+      createdAt: new Date(),
+      approvedAt: undefined,
+    };
+
+    setPayRequests((prev) => [optimistic, ...prev]);
+
     try {
-      await createPaymentRequest({
+      const saved = await createPaymentRequest({
         userId,
         userName,
         paymentTitle,
@@ -47,17 +71,25 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
         category: selectedCategory,
       });
 
-      // 通常のPOST処理などを入れる
+      setPayRequests((prev) =>
+        prev.map((p) =>
+          p.requestId === tempId ? { ...optimistic, ...saved } : p
+        )
+      );
+
       setStatus("送信＆保存成功！");
+      // 入力リセット
       setPaymentTitle("");
       setPaymentCost(0);
       setItemLink("");
       setPaymentMemo("");
       setSelectedCategory("");
 
-      await onCreated();
+      onClose(); // モーダルを閉じる
     } catch (err) {
       console.error(err);
+      // 3) 失敗時はロールバック（楽観的に追加した行を消す）
+      setPayRequests((prev) => prev.filter((p) => p.requestId !== tempId));
       setStatus("送信または保存に失敗しました");
     }
   };
@@ -71,7 +103,6 @@ const PaymentRequestForm: React.FC<PaymentRequestFormProps> = ({
       alert("クリップボードの読み取りに失敗しました");
     }
   };
-
   if (!userId) return null;
 
   const categories = ["ご飯", "交通費", "宿泊費", "デート"];

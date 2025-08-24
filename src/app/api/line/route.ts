@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
       case "join":
         if (ev.source.type === "group") {
           const groupId = ev.source.groupId;
-          console.log(`Joined group ${groupId}, sending welcome link`);
           await sendWelcomeLink(groupId);
         }
         break;
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
         } catch (e: any) {
           let msg: string;
           if (e instanceof ApprovalError) {
-            console.log(`ApprovalError: ${e.status} - ${e.message}`);
+            console.error(`ApprovalError: ${e.status} - ${e.message}`);
             switch (e.status) {
               case 403:
                 msg = "自分のリクエストは承認できません";
