@@ -8,14 +8,13 @@ import type { Payment } from "@/types/request/payment";
 import { updatePayment } from "@/lib/api/request/papyment";
 
 interface RequestListProps {
-  approvedPayRequest: Payment[];
+  unApprovedPayRequests: Payment[];
   setPayRequests: React.Dispatch<React.SetStateAction<Payment[]>>;
-  loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const UnApprovedRequestList = ({
-  approvedPayRequest,
+  unApprovedPayRequests,
   setPayRequests,
   setLoading,
 }: RequestListProps) => {
@@ -78,7 +77,7 @@ const UnApprovedRequestList = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {approvedPayRequest.map((item) => (
+            {unApprovedPayRequests.map((item) => (
               <tr key={item.requestId}>
                 <td className="max-w-28 px-4 py-2 text-sm text-gray-800">
                   {item.paymentTitle}

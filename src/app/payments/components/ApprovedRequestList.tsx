@@ -3,14 +3,11 @@
 import type { Payment } from "@/types/request/payment";
 import { transDateFormat } from "@/lib/utils/transdate-format";
 
-interface RequestListProps {
-  approvedPayRequest: Payment[];
-  setPayRequests: React.Dispatch<React.SetStateAction<Payment[]>>;
-  loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}
+type Props = {
+  approvedPayRequests: Payment[];
+};
 
-const ApprovedRequestList = ({ approvedPayRequest }: RequestListProps) => {
+const ApprovedRequestList = ({ approvedPayRequests }: Props) => {
   return (
     <div className="max-w-4xl mx-auto p-4 mt-8">
       <h1 className="text-2xl font-700 text-center text-gray-800 mb-6">
@@ -36,7 +33,7 @@ const ApprovedRequestList = ({ approvedPayRequest }: RequestListProps) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {approvedPayRequest.map((item) => (
+            {approvedPayRequests.map((item) => (
               <tr key={item.requestId}>
                 <td className="px-4 py-4 text-sm text-gray-800">
                   {transDateFormat(item.approvedAt)}
