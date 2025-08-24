@@ -5,7 +5,6 @@ import {
   ApprovalError,
 } from "@/lib/services/approval-request";
 import { pushSimpleText, sendWelcomeLink } from "@/lib/services/line-message";
-import { LineTarget } from "@/types/line/message";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
         if (ev.source.type === "group") {
           const groupId = ev.source.groupId;
           console.log(`Joined group ${groupId}, sending welcome link`);
-          await sendWelcomeLink({ groupId });
+          await sendWelcomeLink(groupId);
         }
         break;
 
@@ -26,10 +25,8 @@ export async function POST(req: NextRequest) {
         const requestId = params.get("id");
         const paymentTitle = params.get("paymentTitle") ?? "（不明）";
         const userId = ev.source?.userId;
-        const target: LineTarget =
-          ev.source.type === "group"
-            ? { groupId: ev.source.groupId }
-            : { userId: ev.source.userId! };
+        const target =
+          ev.source.type === "group" ? ev.source.groupId : ev.source.userId;
         if (!requestId || !userId) break;
 
         try {

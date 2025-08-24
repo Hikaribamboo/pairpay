@@ -12,16 +12,13 @@ const config = {
 // シングルトンのクライアント
 export const lineClient = new line.Client(config);
 
-export type LineTarget = { groupId: string };
-
-// 汎用メッセージ送信（Text / Flex を含む）
 export async function pushMessageToLine(
-  target: LineTarget,
+  target: string,
   message: line.Message | line.Message[]
 ): Promise<void> {
   try {
-    if ("groupId" in target) {
-      await lineClient.pushMessage(target.groupId, message);
+    if (target === "groupId") {
+      await lineClient.pushMessage(target, message);
     }
   } catch (e: any) {
     console.error(
@@ -34,7 +31,7 @@ export async function pushMessageToLine(
 
 // 短文（テキスト）送信用ラッパー
 export async function pushSimpleText(
-  target: LineTarget,
+  target: string,
   text: string
 ): Promise<void> {
   const message: line.Message = {
@@ -47,7 +44,7 @@ export async function pushSimpleText(
 // 承認通知（テキスト）
 export async function sendApprovalNotification(
   payment: Payment,
-  target: LineTarget
+  target: string
 ): Promise<void> {
   const message: line.Message = {
     type: "text",
@@ -58,7 +55,7 @@ export async function sendApprovalNotification(
 
 export async function sendNewPaymentRequestNotification(
   params: SendRequestMessage,
-  target: LineTarget
+  target: string
 ): Promise<void> {
   const { userName, paymentTitle, paymentCost, itemLink, requestId } = params;
 
@@ -135,7 +132,7 @@ export async function sendNewPaymentRequestNotification(
 export async function sendRulesUpdatedNotification(
   previous: { fixed: any; free: string[] } | null,
   current: { fixed: any; free: string[] },
-  target: LineTarget
+  target: string
 ): Promise<void> {
   const diffs: string[] = [];
 
@@ -193,11 +190,11 @@ export async function sendRulesUpdatedNotification(
   await pushSimpleText(target, bodyText);
 }
 
-export async function sendWelcomeLink(target: LineTarget): Promise<void> {
+export async function sendWelcomeLink(target: string): Promise<void> {
   const appUrl = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL!;
   const clientId = process.env.NEXT_PUBLIC_LINE_CLIENT_ID!;
   const redirect = `${appUrl}/`;
-  const groupId = target.groupId;
+  const groupId = target;
   const loginUrl =
     "https://access.line.me/oauth2/v2.1/authorize?" +
     new URLSearchParams({

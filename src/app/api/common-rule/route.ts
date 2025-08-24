@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-server";
 import { AllRules } from "@/types/common-rule";
 import { sendRulesUpdatedNotification } from "@/lib/services/line-message";
-import type { LineTarget } from "@/types/line/message";
 
 const RULES_DOC_PATH = "common/rules";
 async function getCurrentRules(): Promise<AllRules | null> {
@@ -50,7 +49,7 @@ export async function PATCH(req: NextRequest) {
   await adminDb.doc(RULES_DOC_PATH).set(merged, { merge: true });
 
   try {
-    const target: LineTarget = { groupId: process.env.LINE_GROUP_ID! };
+    const target = process.env.LINE_GROUP_ID!;
     await sendRulesUpdatedNotification(previous, merged, target);
   } catch (e) {
     console.error("LINE通知失敗:", e);
