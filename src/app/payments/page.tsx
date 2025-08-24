@@ -37,6 +37,7 @@ const RequestPage = () => {
       try {
         const payments = await fetchAllPaymentRequest();
         setPayRequest(payments);
+        setLoading(false);
       } catch (e) {
         console.error("リクエストリスト取得エラー", e);
       } finally {
@@ -56,22 +57,21 @@ const RequestPage = () => {
     setShowModal(false);
     setFormType(null);
   };
+
+  if (loading) return <div className="p-6">読み込み中...</div>;
+
   return (
     <div className="relative mt-8 mb-16">
       <UnApprovedRequestList
-        approvedPayRequest={payRequest.filter((item) => !item.isApproved)}
+        unApprovedPayRequests={payRequest.filter((item) => !item.isApproved)}
         setPayRequests={setPayRequest}
-        loading={loading}
         setLoading={setLoading}
       />
       <ApprovedRequestList
-        approvedPayRequest={payRequest.filter((item) => item.isApproved)}
-        setPayRequests={setPayRequest}
-        loading={loading}
-        setLoading={setLoading}
+        approvedPayRequests={payRequest.filter((item) => item.isApproved)}
       />
 
-      {/* ➕ボタン */}
+      {/* ＋ボタン */}
       <button
         onClick={() => setShowModal(true)}
         className="fixed bottom-6 right-6 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition"
