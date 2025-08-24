@@ -5,14 +5,14 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   const { code, redirectUri, groupId } = await req.json();
-  if (!code || !redirectUri || !groupId) {
+  if (!code || !redirectUri) {
     return NextResponse.json(
       { error: "Missing code or redirectUri" },
       { status: 400 }
     );
   }
 
-  /*----------------- ① トークン取得 -----------------*/
+  // --- ① token ---
   const tokenRes = await fetch("https://api.line.me/oauth2/v2.1/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -24,21 +24,17 @@ export async function POST(req: NextRequest) {
       client_secret: process.env.LINE_CLIENT_SECRET!,
     }),
   });
-
   if (!tokenRes.ok) {
-    // ここで LINE が返したエラーメッセージを出力
     const errText = await tokenRes.text();
     console.error("LINE token endpoint error:", tokenRes.status, errText);
-
     return NextResponse.json(
       { status: tokenRes.status, error: errText },
       { status: tokenRes.status }
     );
   }
-
   const { access_token } = await tokenRes.json();
 
-  /*----------------- ② プロフィール取得 -----------------*/
+  // --- ② profile ---
   const profileRes = await fetch("https://api.line.me/v2/profile", {
     headers: { Authorization: `Bearer ${access_token}` },
   });
@@ -49,46 +45,45 @@ export async function POST(req: NextRequest) {
   }
   const profile = await profileRes.json();
 
-  /*----------------- ③ Firestore 更新 & カスタムトークン -----------------*/
-  await adminDb.collection("users").doc(profile.userId).set(
-    {
-      userId: profile.userId,
-      userName: profile.displayName,
-      groupId,
-      lastLogin: new Date(),
-    },
-    { merge: true }
-  );
+  // --- ③ users 保存 ---
+  await adminDb
+    .collection("users")
+    .doc(profile.userId)
+    .set(
+      {
+        userId: profile.userId,
+        userName: profile.displayName,
+        // groupId は optional（nogroup のときは保存しない）
+        ...(groupId && groupId !== "nogroup" ? { groupId } : {}),
+        lastLogin: new Date(),
+      },
+      { merge: true }
+    );
 
-  const groupRef = adminDb.collection("groups").doc(groupId);
-  const groupSnap = await groupRef.get();
-
+  // --- ④ groups は groupId がある場合だけ ---
   let pairUserId: string | null = null;
   let pairUserName: string | null = null;
 
-  if (!groupSnap.exists) {
-    // 初回：ドキュメントがなければ新規作成
-    await groupRef.set({
-      groupId,
-      members: [profile.userId],
-    });
-  } else {
-    const data = groupSnap.data()!;
+  if (groupId && groupId !== "nogroup") {
+    const groupRef = adminDb.collection("groups").doc(groupId);
+    const groupSnap = await groupRef.get();
 
-    // 必要なら追加
-    if (!data.members.includes(profile.userId) && data.members.length < 2) {
-      await groupRef.update({
-        members: FieldValue.arrayUnion(profile.userId),
-      });
-    }
-
-    // ペアの userName を取得
-    const pairId = data.members.find((id: string) => id !== profile.userId);
-    if (pairId) {
-      pairUserId = pairId;
-      const pairDoc = await adminDb.collection("users").doc(pairId).get();
-      if (pairDoc.exists) {
-        pairUserName = pairDoc.data()?.userName ?? null;
+    if (!groupSnap.exists) {
+      await groupRef.set({ groupId, members: [profile.userId] });
+    } else {
+      const data = groupSnap.data()!;
+      if (!data.members.includes(profile.userId) && data.members.length < 2) {
+        await groupRef.update({
+          members: FieldValue.arrayUnion(profile.userId),
+        });
+      }
+      const pairId = data.members.find((id: string) => id !== profile.userId);
+      if (pairId) {
+        pairUserId = pairId;
+        const pairDoc = await adminDb.collection("users").doc(pairId).get();
+        pairUserName = pairDoc.exists
+          ? (pairDoc.data()?.userName ?? null)
+          : null;
       }
     }
   }
@@ -99,6 +94,7 @@ export async function POST(req: NextRequest) {
     userId: profile.userId,
     userName: profile.displayName,
     customToken,
+    // groupId は保存していない可能性もある点に注意
     pairUserId,
     pairUserName,
   });

@@ -17,7 +17,7 @@ export type LineTarget = { groupId: string };
 // 汎用メッセージ送信（Text / Flex を含む）
 export async function pushMessageToLine(
   target: LineTarget,
-  message: line.Message
+  message: line.Message | line.Message[]
 ): Promise<void> {
   try {
     if ("groupId" in target) {
@@ -39,7 +39,7 @@ export async function pushSimpleText(
 ): Promise<void> {
   const message: line.Message = {
     type: "text",
-    text,
+    text: text,
   };
   await pushMessageToLine(target, message);
 }

@@ -1,6 +1,5 @@
 // hooks/useLineAuth.ts
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSetAtom } from "jotai";
@@ -14,41 +13,47 @@ export function useLineAuth(code?: string, state?: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const userName = localStorage.getItem("userName");
-    const token = localStorage.getItem("token");
-    const groupId = localStorage.getItem("groupId");
-    if (userId && userName && token && groupId) {
-      setUser({ userId, userName, groupId });
-      router.replace("/payments");
-      return;
-    }
+    if (!code || !state) return;
 
-    if (code && state) {
-      (async () => {
-        setLoading(true);
-        try {
-          const groupId = state;
-          const { userId, userName, customToken, pairUserId, pairUserName } =
-            await fetchLineLogin(code, `${window.location.origin}/`, groupId);
-          localStorage.setItem("token", customToken);
-          localStorage.setItem("userId", userId);
-          localStorage.setItem("userName", userName);
-          localStorage.setItem("groupId", groupId);
-          localStorage.setItem("pairUserId", pairUserId);
-          localStorage.setItem("pairUserName", pairUserName);
+    (async () => {
+      setLoading(true);
+      try {
+        const groupId = state; // 'nogroup' の可能性あり
+        const res = await fetchLineLogin(
+          code,
+          `${window.location.origin}/`,
+          groupId
+        );
 
-          setUser({ userId, userName, groupId });
-          router.replace("/payments");
-        } catch (e: any) {
-          console.error(e);
-          setError(e);
-        } finally {
-          setLoading(false);
+        // userId が返らないケースを DB未登録 とみなして案内へ
+        if (!res?.userId) {
+          router.replace("/lead-line-friend"); // ページ用意していなければ "/" でもOK
+          return;
         }
-      })();
-      return;
-    }
+
+        const { userId, userName, customToken, pairUserId, pairUserName } = res;
+
+        localStorage.setItem("token", customToken);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("userName", userName);
+        if (groupId && groupId !== "nogroup")
+          localStorage.setItem("groupId", groupId);
+        if (pairUserId) localStorage.setItem("pairUserId", pairUserId);
+        if (pairUserName) localStorage.setItem("pairUserName", pairUserName);
+
+        setUser({
+          userId,
+          userName,
+          groupId: groupId !== "nogroup" ? groupId : undefined,
+        });
+        router.replace("/payments");
+      } catch (e: any) {
+        console.error(e);
+        setError(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [code, state, router, setUser]);
 
   return { loading, error };
