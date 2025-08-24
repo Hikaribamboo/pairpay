@@ -6,6 +6,7 @@ import { fetchRules, updateRules } from "@/lib/api/common-rule";
 import { Pencil } from "lucide-react";
 import FreeRuleEditModal from "@/app/common-rules/components/modals/FreeRuleEditModal";
 import FixedRuleDisplay from "@/app/common-rules/components/FixedRuleDisplay";
+
 export default function RulesPage() {
   const [fixed, setFixed] = useState<FixedRules>({
     contributionRatio: 5,

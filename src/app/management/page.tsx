@@ -21,7 +21,6 @@ export default function MobileDashboard() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("今月");
   const [termPayRequests, setTermPayRequests] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -130,12 +129,7 @@ export default function MobileDashboard() {
         </div>
       </section>
       {/* 一覧 */}
-      <ApprovedRequestList
-        approvedPayRequest={termPayRequests}
-        setPayRequests={setTermPayRequests}
-        loading={loading}
-        setLoading={setLoading}
-      />
+      <ApprovedRequestList approvedPayRequests={termPayRequests} />
     </div>
   );
 }
