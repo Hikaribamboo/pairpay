@@ -49,8 +49,8 @@ export async function PATCH(req: NextRequest) {
   await adminDb.doc(RULES_DOC_PATH).set(merged, { merge: true });
 
   try {
-    const target = process.env.LINE_GROUP_ID!;
-    await sendRulesUpdatedNotification(previous, merged, target);
+    const groupId = process.env.LINE_GROUP_ID!;
+    await sendRulesUpdatedNotification(previous, merged, groupId);
   } catch (e) {
     console.error("LINE通知失敗:", e);
   }

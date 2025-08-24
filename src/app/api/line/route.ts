@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         const requestId = params.get("id");
         const paymentTitle = params.get("paymentTitle") ?? "（不明）";
         const userId = ev.source?.userId;
-        const target =
+        const groupId =
           ev.source.type === "group" ? ev.source.groupId : ev.source.userId;
         if (!requestId || !userId) break;
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
             console.error(e);
             msg = "不明なエラーが発生しました";
           }
-          await pushSimpleText(target, msg);
+          await pushSimpleText(groupId, msg);
         }
 
         break;

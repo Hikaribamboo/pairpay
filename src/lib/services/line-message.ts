@@ -13,12 +13,12 @@ const config = {
 export const lineClient = new line.Client(config);
 
 export async function pushMessageToLine(
-  target: string,
+  groupId: string,
   message: line.Message | line.Message[]
 ): Promise<void> {
   try {
-    if (target === "groupId") {
-      await lineClient.pushMessage(target, message);
+    if (groupId === "groupId") {
+      await lineClient.pushMessage(groupId, message);
     }
   } catch (e: any) {
     console.error(
@@ -31,31 +31,31 @@ export async function pushMessageToLine(
 
 // 短文（テキスト）送信用ラッパー
 export async function pushSimpleText(
-  target: string,
+  groupId: string,
   text: string
 ): Promise<void> {
   const message: line.Message = {
     type: "text",
     text: text,
   };
-  await pushMessageToLine(target, message);
+  await pushMessageToLine(groupId, message);
 }
 
 // 承認通知（テキスト）
 export async function sendApprovalNotification(
   payment: Payment,
-  target: string
+  groupId: string
 ): Promise<void> {
   const message: line.Message = {
     type: "text",
     text: `「${payment.paymentTitle}」が承認されました！`,
   };
-  await pushMessageToLine(target, message);
+  await pushMessageToLine(groupId, message);
 }
 
 export async function sendNewPaymentRequestNotification(
   params: SendRequestMessage,
-  target: string
+  groupId: string
 ): Promise<void> {
   const { userName, paymentTitle, paymentCost, itemLink, requestId } = params;
 
@@ -125,14 +125,14 @@ export async function sendNewPaymentRequestNotification(
     },
   };
 
-  await pushMessageToLine(target, flexMessage);
+  await pushMessageToLine(groupId, flexMessage);
 }
 
 // ルール変更通知（固定＋自由どちらも使える）
 export async function sendRulesUpdatedNotification(
   previous: { fixed: any; free: string[] } | null,
   current: { fixed: any; free: string[] },
-  target: string
+  groupId: string
 ): Promise<void> {
   const diffs: string[] = [];
 
@@ -187,14 +187,14 @@ export async function sendRulesUpdatedNotification(
       ? ["ルールが更新されました：", ...diffs].join("\n")
       : "ルールの更新がありましたが、差分が検知できませんでした。";
 
-  await pushSimpleText(target, bodyText);
+  await pushSimpleText(groupId, bodyText);
 }
 
-export async function sendWelcomeLink(target: string): Promise<void> {
+export async function sendWelcomeLink(groupId: string): Promise<void> {
   const appUrl = process.env.NEXT_PUBLIC_REDIRECT_BASE_URL!;
   const clientId = process.env.NEXT_PUBLIC_LINE_CLIENT_ID!;
   const redirect = `${appUrl}/`;
-  const groupId = target;
+  const groupId = groupId;
   const loginUrl =
     "https://access.line.me/oauth2/v2.1/authorize?" +
     new URLSearchParams({
@@ -248,5 +248,5 @@ export async function sendWelcomeLink(target: string): Promise<void> {
     },
   };
 
-  await pushMessageToLine(target, flexMessage);
+  await pushMessageToLine(groupId, flexMessage);
 }
